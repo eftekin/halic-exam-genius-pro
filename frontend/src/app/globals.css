@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+/* ── Design Tokens ────────────────────────────────────────────────── */
+:root {
+  --background: #f8fafc; /* slate-50 */
+  --foreground: #0f172a; /* slate-900 */
+  --surface: #ffffff;
+  --muted: #f1f5f9; /* slate-100 */
+  --border: #e2e8f0; /* slate-200 */
+  --accent: #4f46e5; /* indigo-600 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #09090b; /* zinc-950 */
+    --foreground: #d4d4d8; /* zinc-300 */
+    --surface: rgba(24, 24, 27, 0.6); /* zinc-900/60 */
+    --muted: #27272a; /* zinc-800 */
+    --border: rgba(39, 39, 42, 0.5); /* zinc-800/50 */
+    --accent: #818cf8; /* indigo-400 */
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────── */
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    var(--font-sans),
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Safe-area ────────────────────────────────────────────────────── */
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 1rem);
+}
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.75rem);
+}
+
+/* ── Card entrance animation ──────────────────────────────────────── */
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-card-in {
+  animation: card-in 0.35s ease-out both;
+}
+
+/* ── Fade in ──────────────────────────────────────────────────────── */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out both;
+}
+
+/* ── Dropdown slide ───────────────────────────────────────────────── */
+@keyframes dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-dropdown-in {
+  animation: dropdown-in 0.15s ease-out both;
+}
+
+/* ── Premium glass panel ──────────────────────────────────────────── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+}
+@media (prefers-color-scheme: dark) {
+  .glass-panel {
+    background: rgba(9, 9, 11, 0.8);
+  }
+}
+
+/* ── Subtle card hover glow ───────────────────────────────────────── */
+@keyframes subtle-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+  50% {
+    box-shadow: 0 0 12px -2px rgba(99, 102, 241, 0.08);
+  }
+}
+.hover-glow:hover {
+  animation: subtle-glow 2s ease-in-out infinite;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: #3f3f46; /* zinc-700 */
+  }
+}
+
+/* ── Utility: hide scrollbar ──────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
