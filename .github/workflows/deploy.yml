@@ -1,0 +1,60 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/deploy.yml"
+
+  workflow_dispatch: # manual trigger from GitHub UI
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+
+            cd /root/halic-exam-genius-pro
+
+            echo "▸ Pulling latest code..."
+            git pull origin main
+
+            cd backend
+
+            echo "▸ Building API image..."
+            docker compose build api
+
+            echo "▸ Restarting containers..."
+            docker compose up -d
+
+            echo "▸ Waiting for health check..."
+            sleep 8
+
+            echo "▸ Container status:"
+            docker compose ps
+
+            echo "▸ Verifying API health..."
+            STATUS=$(docker inspect --format='{{.State.Status}}' exam-genius-api)
+            if [ "$STATUS" != "running" ]; then
+              echo "✗ API container is not running (status: $STATUS)"
+              docker logs exam-genius-api --tail 20
+              exit 1
+            fi
+
+            echo "✓ Deployment successful"
