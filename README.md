@@ -15,7 +15,7 @@ A premium, mobile-first web application for **Haliç University** students to vi
 - **Beautiful Exam Cards** — Elegant, color-coded cards with date, time, and classroom info
 - **Calendar Export (.ics)** — One-tap export of all exams to Apple Calendar, Google Calendar, etc.
 - **Image Export (PNG)** — Share your schedule as a crisp image via native share or download
-- **Dark Mode** — Premium zinc/charcoal dark theme with glass morphism effects
+- **Dark Mode** — Automatic dark theme that follows system preferences
 - **Mobile-First** — Designed for iOS-quality experience with safe area support
 - **Bilingual (TR/EN)** — Automatic language detection based on browser locale
 
@@ -109,6 +109,12 @@ The backend supports configuration via environment variables prefixed with `EXAM
 | `EXAM_GENIUS_EXAM_SCHEDULE_URL` | URL to the .xlsx schedule file    | Haliç CDN URL |
 | `EXAM_GENIUS_CORS_ORIGINS`      | Allowed CORS origins (JSON array) | `["*"]`       |
 | `EXAM_GENIUS_CACHE_TTL_SECONDS` | Data cache TTL in seconds         | `3600`        |
+
+The frontend reads one optional variable from a `.env.local` file (or the shell environment):
+
+| Variable              | Description      | Default                 |
+| --------------------- | ---------------- | ----------------------- |
+| `NEXT_PUBLIC_API_URL` | Backend base URL | `http://localhost:8000` |
 
 ## 🛠️ Tech Stack
 

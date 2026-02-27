@@ -13,22 +13,27 @@ import CourseSelector from "@/components/CourseSelector";
 import ExamCard, { ExamCardSkeleton } from "@/components/ExamCard";
 import { EmptyState, ErrorState } from "@/components/States";
 import ExportBar from "@/components/ExportBar";
+import ExportView from "@/components/ExportView";
+
+/* Stable empty array — never creates a new reference */
+const EMPTY_SCHEDULE: ExamDetail[] = [];
 
 export default function Home() {
   const { lang, t } = useLanguage();
+  const tRef = useRef(t);
+  tRef.current = t;
 
-  /* ── Data state ──────────────────────────────────────────────── */
   const [courses, setCourses] = useState<Course[]>([]);
   const [coursesLoading, setCoursesLoading] = useState(true);
   const [coursesError, setCoursesError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Course[]>([]);
-  const [schedule, setSchedule] = useState<ExamDetail[]>([]);
+  const [schedule, setSchedule] = useState<ExamDetail[]>(EMPTY_SCHEDULE);
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [scheduleError, setScheduleError] = useState<string | null>(null);
 
-  const scheduleRef = useRef<HTMLDivElement>(null);
+  const exportRef = useRef<HTMLDivElement>(null);
 
-  /* ── Load courses ────────────────────────────────────────────── */
+  /* Load courses */
   const loadCourses = useCallback(async () => {
     setCoursesLoading(true);
     setCoursesError(null);
@@ -37,21 +42,21 @@ export default function Home() {
       setCourses(data.courses);
     } catch (err) {
       setCoursesError(
-        err instanceof Error ? err.message : t.courses_load_error,
+        err instanceof Error ? err.message : tRef.current.courses_load_error,
       );
     } finally {
       setCoursesLoading(false);
     }
-  }, [t]);
+  }, []);
 
   useEffect(() => {
     loadCourses();
   }, [loadCourses]);
 
-  /* ── Fetch schedule on selection change ──────────────────────── */
+  /* Fetch schedule */
   useEffect(() => {
     if (selected.length === 0) {
-      setSchedule([]);
+      setSchedule(EMPTY_SCHEDULE);
       return;
     }
 
@@ -70,7 +75,9 @@ export default function Home() {
       } catch (err) {
         if (!cancelled) {
           setScheduleError(
-            err instanceof Error ? err.message : t.schedule_load_error,
+            err instanceof Error
+              ? err.message
+              : tRef.current.schedule_load_error,
           );
         }
       } finally {
@@ -83,35 +90,31 @@ export default function Home() {
       cancelled = true;
       clearTimeout(tm);
     };
-  }, [selected, lang, t]);
+  }, [selected, lang]);
 
-  /* ── Derived ─────────────────────────────────────────────────── */
   const courseLabels = selected.map((c) => c.label);
   const showResults = selected.length > 0;
-  const hasSchedule = !scheduleLoading && !scheduleError && schedule.length > 0;
+  const hasSchedule = schedule.length > 0 && !scheduleError;
+  const showSkeletons = scheduleLoading && schedule.length === 0;
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-lg flex-col bg-slate-50 dark:bg-zinc-950">
-      {/* ── Sticky Header ─────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b border-slate-200/60 shadow-[0_1px_2px_rgba(0,0,0,0.04)] glass-panel dark:border-zinc-800/50">
+    <div className="mx-auto flex min-h-dvh max-w-2xl flex-col bg-white dark:bg-zinc-950">
+      {/* Sticky Header — fixed height to prevent layout shifts */}
+      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="px-4 pb-4 pt-safe">
-          {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/20 dark:shadow-indigo-500/10">
-              <GraduationCap className="h-[18px] w-[18px] text-white" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600">
+              <GraduationCap className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-[17px] font-bold tracking-tight text-slate-900 dark:text-zinc-50">
+              <h1 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
                 Exam Genius
               </h1>
-              <p className="text-[11px] text-slate-500 dark:text-zinc-500">
-                {t.subtitle}
-              </p>
+              <p className="text-xs text-zinc-500">{t.subtitle}</p>
             </div>
           </div>
 
-          {/* Course selector */}
-          <div className="mt-3.5">
+          <div className="mt-3">
             {coursesError ? (
               <ErrorState message={coursesError} onRetry={loadCourses} t={t} />
             ) : (
@@ -127,12 +130,10 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ── Main ──────────────────────────────────────────────────── */}
-      <main className={`flex-1 px-4 pt-4 ${hasSchedule ? "pb-28" : "pb-8"}`}>
-        {/* Empty state */}
+      {/* Main — pb-28 to reserve space for export bar */}
+      <main className="flex-1 px-4 pb-28 pt-4">
         {!showResults && !scheduleLoading && <EmptyState t={t} />}
 
-        {/* Error state */}
         {scheduleError && (
           <ErrorState
             message={scheduleError}
@@ -141,26 +142,23 @@ export default function Home() {
           />
         )}
 
-        {/* Skeleton loading */}
-        {scheduleLoading && (
-          <div className="space-y-3">
+        {showSkeletons && (
+          <div className="grid grid-cols-1 gap-2">
             {Array.from({ length: selected.length || 3 }).map((_, i) => (
               <ExamCardSkeleton key={i} />
             ))}
           </div>
         )}
 
-        {/* Results */}
         {hasSchedule && (
           <>
-            <p className="mb-3 text-[13px] font-medium text-slate-500 dark:text-zinc-400">
+            <p className="mb-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">
               {t.exams_listed(schedule.length)}
             </p>
-
-            <div ref={scheduleRef} className="space-y-3">
+            <div className="grid grid-cols-1 gap-2">
               {schedule.map((exam, i) => (
                 <ExamCard
-                  key={exam.course_name + i}
+                  key={`${exam.course_name}-${exam.exam_date}`}
                   exam={exam}
                   index={i}
                   t={t}
@@ -170,21 +168,22 @@ export default function Home() {
           </>
         )}
 
-        {/* Footer */}
-        <footer className="mt-10 pb-4 text-center text-[11px] text-slate-400 dark:text-zinc-600">
+        <footer className="mt-10 pb-4 text-center text-[11px] text-zinc-400 dark:text-zinc-600">
           {t.footer} &copy; {new Date().getFullYear()}
         </footer>
       </main>
 
-      {/* ── Bottom Action Bar ─────────────────────────────────────── */}
-      {hasSchedule && (
-        <ExportBar
-          courseLabels={courseLabels}
-          exams={schedule}
-          scheduleRef={scheduleRef}
-          t={t}
-        />
-      )}
+      {/* Off-screen export table (PNG source) */}
+      <ExportView ref={exportRef} exams={schedule} t={t} lang={lang} />
+
+      {/* Fixed bottom action bar */}
+      <ExportBar
+        courseLabels={courseLabels}
+        exams={schedule}
+        scheduleRef={exportRef}
+        t={t}
+        disabled={!hasSchedule}
+      />
     </div>
   );
 }

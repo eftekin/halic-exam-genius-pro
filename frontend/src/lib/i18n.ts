@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * Internationalisation (i18n) module.
+ *
+ * Provides TR/EN translation dictionaries and the `useLanguage` hook
+ * that auto-detects the browser locale on mount.
+ */
+
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   EXAM_TYPE_TR,
@@ -59,7 +66,7 @@ const translations = {
       `${UNIVERSITY_NAME_TR} — ${course} ${EXAM_TYPE_TR} (${ACADEMIC_YEAR} ${SEMESTER_TR})`,
 
     // Footer
-    footer: `${UNIVERSITY_NAME_TR} Sınav Programı`,
+    footer: "Haliç Exam Genius",
   },
 
   en: {
@@ -96,7 +103,7 @@ const translations = {
     ics_description: (course: string) =>
       `${UNIVERSITY_NAME_EN} — ${course} ${EXAM_TYPE_EN} (${ACADEMIC_YEAR} ${SEMESTER_EN})`,
 
-    footer: `${UNIVERSITY_NAME_EN} Exam Schedule`,
+    footer: "Haliç Exam Genius",
   },
 } as const;
 
@@ -110,15 +117,19 @@ export type Translations = {
 
 // ── Auto-detect helper ───────────────────────────────────────────────────────
 
+/** Detect the user's preferred language from the browser. */
 function detectLang(): Lang {
   if (typeof navigator === "undefined") return "tr";
   const raw = navigator.language ?? navigator.languages?.[0] ?? "tr";
-  // If the browser language starts with "tr", use Turkish; everything else → English
   return raw.toLowerCase().startsWith("tr") ? "tr" : "en";
 }
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
+/**
+ * React hook that provides the current language, a setter, and the
+ * matching translation dictionary.
+ */
 export function useLanguage() {
   const [lang, setLangState] = useState<Lang>("tr");
 

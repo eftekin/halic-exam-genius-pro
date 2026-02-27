@@ -15,43 +15,19 @@ interface ExportBarProps {
   disabled?: boolean;
 }
 
-/** Detect if dark mode is active via the OS / Tailwind media query. */
-function isDarkMode(): boolean {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
-}
-
-const BG_LIGHT = "#f8fafc"; // slate-50  (page background)
-const BG_DARK = "#09090b"; // zinc-950 (page background)
-
+/** Capture the ExportView DOM node as a PNG blob using html-to-image. */
 async function captureScheduleImage(node: HTMLElement): Promise<Blob> {
-  const bg = isDarkMode() ? BG_DARK : BG_LIGHT;
-
-  // Temporarily apply an explicit background + padding so
-  // html-to-image renders gaps between cards correctly.
-  const prev = {
-    bg: node.style.backgroundColor,
-    padding: node.style.padding,
-    borderRadius: node.style.borderRadius,
-  };
-  node.style.backgroundColor = bg;
-  node.style.padding = "16px";
-  node.style.borderRadius = "16px";
-
-  try {
-    const dataUrl = await toPng(node, {
-      pixelRatio: 2,
-      backgroundColor: bg,
-      cacheBust: true,
-    });
-    const res = await fetch(dataUrl);
-    return res.blob();
-  } finally {
-    // Restore original styles
-    node.style.backgroundColor = prev.bg;
-    node.style.padding = prev.padding;
-    node.style.borderRadius = prev.borderRadius;
-  }
+  const dataUrl = await toPng(node, {
+    pixelRatio: 2,
+    backgroundColor: "#ffffff",
+    cacheBust: true,
+    // The source node is hidden with opacity:0. Override on the clone so
+    // the rendered image is fully opaque — no flicker because the original
+    // stays behind the page (z-index:-9999).
+    style: { opacity: "1" },
+  });
+  const res = await fetch(dataUrl);
+  return res.blob();
 }
 
 export default function ExportBar({
@@ -64,7 +40,6 @@ export default function ExportBar({
   const [shareLoading, setShareLoading] = useState(false);
   const [icsLoading, setIcsLoading] = useState(false);
 
-  /* ── ICS download ─────────────────────────────────────────────── */
   function handleICS() {
     if (exams.length === 0) return;
     setIcsLoading(true);
@@ -86,7 +61,6 @@ export default function ExportBar({
     }
   }
 
-  /* ── Share / Download PNG ─────────────────────────────────────── */
   async function handleShare() {
     if (!scheduleRef.current) return;
     setShareLoading(true);
@@ -124,28 +98,30 @@ export default function ExportBar({
 
   const isDisabled = disabled || courseLabels.length === 0;
 
+  if (isDisabled) return null;
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200/60 shadow-[0_-1px_3px_rgba(0,0,0,0.04)] glass-panel dark:border-zinc-800/50">
-      <div className="mx-auto flex max-w-lg items-center gap-2.5 px-4 pt-3 pb-safe">
-        {/* Primary CTA — ICS */}
+    <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 pt-3 pb-safe">
+        {/* ICS */}
         <button
           onClick={handleICS}
           disabled={isDisabled || icsLoading}
-          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-violet-600 py-3 text-sm font-semibold text-white shadow-md shadow-indigo-500/20 transition-all duration-150 hover:shadow-lg hover:shadow-indigo-500/25 active:scale-[0.97] disabled:opacity-40 disabled:pointer-events-none dark:from-indigo-500 dark:to-violet-500 dark:shadow-indigo-500/10 dark:hover:shadow-indigo-500/20"
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
         >
           <CalendarPlus className="h-4 w-4" />
           {icsLoading ? t.generating : t.add_all_to_calendar(exams.length)}
         </button>
 
-        {/* Secondary — Share / PNG */}
+        {/* PNG */}
         <button
           onClick={handleShare}
           disabled={isDisabled || shareLoading}
-          className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-600 shadow-sm transition-all duration-150 hover:bg-slate-50 active:scale-95 disabled:opacity-40 disabled:pointer-events-none dark:border-zinc-700/50 dark:bg-zinc-900/60 dark:text-zinc-300 dark:hover:bg-zinc-800/60"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-600 disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
           title={t.share_tooltip}
         >
           {shareLoading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600 dark:border-zinc-600 dark:border-t-zinc-300" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600" />
           ) : typeof navigator !== "undefined" &&
             typeof navigator.share === "function" ? (
             <Share2 className="h-4 w-4" />
