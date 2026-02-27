@@ -26,8 +26,7 @@ class Settings(BaseSettings):
     # ║  Go to halic.edu.tr → announcements → find the new .xlsx link ║
     # ╚══════════════════════════════════════════════════════════════════╝
     exam_schedule_url: str = (
-        "https://halic.edu.tr/wp-content/uploads/duyurular/2025/12/24/"
-        "2025-2026-guz-final-tum-liste.xlsx"
+        "https://halic.edu.tr/wp-content/uploads/duyurular/2025/11/03/2025-2026-guz-vize-tum-liste.xlsx"
     )
 
     # ── CORS ──────────────────────────────────────────────────────────────
