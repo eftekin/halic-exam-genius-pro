@@ -3,6 +3,13 @@
 import { forwardRef } from "react";
 import type { ExamDetail } from "@/lib/api";
 import type { Translations } from "@/lib/i18n";
+import {
+  ACADEMIC_YEAR,
+  SEMESTER_TR,
+  SEMESTER_EN,
+  EXAM_TYPE_TR,
+  EXAM_TYPE_EN,
+} from "@/config/constants";
 
 /*
  * ExportView — The PNG source of truth.
@@ -19,6 +26,13 @@ interface ExportViewProps {
   exams: ExamDetail[];
   t: Translations;
   lang: string;
+}
+
+function getScheduleTitle(lang: string) {
+  const semester = lang === "tr" ? SEMESTER_TR : SEMESTER_EN;
+  const examType = lang === "tr" ? EXAM_TYPE_TR : EXAM_TYPE_EN;
+  const suffix = lang === "tr" ? "Sınav Programı" : "Exam Schedule";
+  return `${ACADEMIC_YEAR} ${semester} ${examType} ${suffix}`;
 }
 
 function parseExamDate(raw: string) {
@@ -74,7 +88,17 @@ const ExportView = forwardRef<HTMLDivElement, ExportViewProps>(
             marginBottom: 16,
           }}
         >
-          <div style={{ fontSize: 18, fontWeight: 700, color: "#001BC3" }}>
+          <div
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              color: "#001BC3",
+              marginBottom: 4,
+            }}
+          >
+            {getScheduleTitle(lang)}
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "#333" }}>
             Exam Genius — {t.subtitle}
           </div>
           <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>

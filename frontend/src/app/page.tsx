@@ -106,23 +106,32 @@ export default function Home() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-2xl flex-col bg-white dark:bg-zinc-950">
-      {/* Sticky Header — fixed height to prevent layout shifts */}
-      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+      {/* Sticky Header */}
+      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/80 backdrop-blur-lg dark:border-zinc-800 dark:bg-zinc-950/80">
         <div className="px-4 pb-4 pt-safe">
+          {/* Branding row */}
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600">
+            {/* Icon */}
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 shadow-lg shadow-indigo-500/20">
               <GraduationCap className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <h1 className="text-base font-bold text-zinc-900 dark:text-zinc-50">
-                Exam Genius
-              </h1>
-              <p className="text-xs text-zinc-500">{t.subtitle}</p>
+
+            {/* Title stack */}
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                <h1 className="text-2xl font-bold tracking-tight text-zinc-900 md:text-3xl dark:text-zinc-50">
+                  Exam Genius
+                </h1>
+                {/* Semester badge */}
+                <span className="inline-flex items-center rounded-md border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                  {ACADEMIC_YEAR} {lang === "tr" ? SEMESTER_TR : SEMESTER_EN} |{" "}
+                  {lang === "tr" ? EXAM_TYPE_TR : EXAM_TYPE_EN}
+                </span>
+              </div>
+              <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                {t.subtitle}
+              </p>
             </div>
-            <span className="ml-auto self-center rounded-full border border-zinc-200 px-2.5 py-0.5 text-[11px] font-medium text-zinc-400 dark:border-zinc-700 dark:text-zinc-500">
-              {ACADEMIC_YEAR} {lang === "tr" ? SEMESTER_TR : SEMESTER_EN} |{" "}
-              {lang === "tr" ? EXAM_TYPE_TR : EXAM_TYPE_EN}
-            </span>
           </div>
 
           <div className="mt-3">
@@ -163,9 +172,18 @@ export default function Home() {
 
         {hasSchedule && (
           <>
-            <p className="mb-3 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              {t.exams_listed(schedule.length)}
-            </p>
+            {/* Result header */}
+            <div className="mb-4 rounded-xl border border-indigo-500/15 bg-linear-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 px-4 py-3 dark:border-indigo-500/20">
+              <h2 className="text-lg font-bold tracking-tight text-zinc-900 md:text-xl dark:text-zinc-50">
+                {ACADEMIC_YEAR} {lang === "tr" ? SEMESTER_TR : SEMESTER_EN}
+                {" | "}
+                {lang === "tr" ? EXAM_TYPE_TR : EXAM_TYPE_EN}{" "}
+                {lang === "tr" ? "Sınav Programı" : "Exam Schedule"}
+              </h2>
+              <p className="mt-0.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                {t.exams_listed(schedule.length)}
+              </p>
+            </div>
             <div className="grid grid-cols-1 gap-2">
               {schedule.map((exam, i) => (
                 <ExamCard

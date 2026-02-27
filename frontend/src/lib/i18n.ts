@@ -55,7 +55,7 @@ const translations = {
     empty_title: "Sınav Programını Görüntüle",
     empty_desc:
       "Yukarıdaki arama kutusundan derslerini seç ve sınav programını anında oluştur.",
-    error_title: "Bir Hata Oluştu",
+    error_title: "Bir Sorun Oluştu",
     retry: "Tekrar Dene",
     courses_load_error: "Dersler yüklenemedi",
     schedule_load_error: "Program yüklenemedi",
@@ -94,7 +94,7 @@ const translations = {
     empty_title: "View Exam Schedule",
     empty_desc:
       "Select your courses from the search bar above to instantly generate your exam schedule.",
-    error_title: "An Error Occurred",
+    error_title: "Something Went Wrong",
     retry: "Retry",
     courses_load_error: "Could not load courses",
     schedule_load_error: "Could not load schedule",
