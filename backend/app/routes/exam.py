@@ -5,8 +5,10 @@ from __future__ import annotations
 import asyncio
 from functools import partial
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi.responses import Response
+
+from app.services.analytics_service import log_search
 
 from app.models.exam import (
     CourseItem,
@@ -77,7 +79,7 @@ async def list_courses():
     response_model=ScheduleResponse,
     summary="Get exam schedule for selected courses",
 )
-async def get_schedule(body: ScheduleRequest):
+async def get_schedule(body: ScheduleRequest, background_tasks: BackgroundTasks):
     """Build a sorted exam schedule for the provided course list."""
     df = await _get_df()
     _validate_courses(df, body.courses)
@@ -98,6 +100,12 @@ async def get_schedule(body: ScheduleRequest):
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     schedule = [ExamDateDetail(**item) for item in items]
+
+    # ── Analytics (fire-and-forget in background) ─────────────────────
+    background_tasks.add_task(
+        log_search, body.courses, body.language.value, "schedule", df
+    )
+
     return ScheduleResponse(schedule=schedule)
 
 
@@ -107,7 +115,7 @@ async def get_schedule(body: ScheduleRequest):
     response_class=Response,
     responses={200: {"content": {"text/calendar": {}}}},
 )
-async def export_ics(body: ICSRequest):
+async def export_ics(body: ICSRequest, background_tasks: BackgroundTasks):
     """Generate and return an ICS file for the selected courses."""
     df = await _get_df()
     _validate_courses(df, body.courses)
@@ -127,6 +135,10 @@ async def export_ics(body: ICSRequest):
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
+    background_tasks.add_task(
+        log_search, body.courses, body.language.value, "ics", df
+    )
+
     return Response(
         content=ics_content,
         media_type="text/calendar",
@@ -140,7 +152,7 @@ async def export_ics(body: ICSRequest):
     response_class=Response,
     responses={200: {"content": {"image/png": {}}}},
 )
-async def export_image(body: ImageRequest):
+async def export_image(body: ImageRequest, background_tasks: BackgroundTasks):
     """Render the schedule as a PNG table image."""
     df = await _get_df()
     _validate_courses(df, body.courses)
@@ -161,6 +173,10 @@ async def export_image(body: ImageRequest):
         raise HTTPException(
             status_code=500, detail=f"Image generation failed: {exc}"
         ) from exc
+
+    background_tasks.add_task(
+        log_search, body.courses, body.language.value, "image", df
+    )
 
     return Response(
         content=img_bytes,

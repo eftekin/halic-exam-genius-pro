@@ -27,6 +27,7 @@ from app.config import (
     EXAM_DATE_COLUMN,
     EXAM_FINISH_TIME_COLUMN,
     EXAM_TIME_COLUMN,
+    FACULTY_COLUMN,
     settings,
 )
 
@@ -77,7 +78,11 @@ def fetch_exam_data() -> pd.DataFrame:
     df[COURSE_CODE_COLUMN] = df[COURSE_CODE_COLUMN].apply(
         lambda y: unidecode(y).lower()
     )
-
+    # ── Clean faculty name (take the first entry from the semicolon list) ───
+    if FACULTY_COLUMN in df.columns:
+        df[FACULTY_COLUMN] = (
+            df[FACULTY_COLUMN].astype(str).apply(lambda x: x.split(";")[0].strip())
+        )
     # ── Clean classroom codes ─────────────────────────────────────────────
     if CLASSROOM_CODE_COLUMN in df.columns:
         df[CLASSROOM_CODE_COLUMN] = (
@@ -95,6 +100,8 @@ def fetch_exam_data() -> pd.DataFrame:
         columns_to_use.append(EXAM_FINISH_TIME_COLUMN)
     if CLASSROOM_CODE_COLUMN in df.columns:
         columns_to_use.append(CLASSROOM_CODE_COLUMN)
+    if FACULTY_COLUMN in df.columns:
+        columns_to_use.append(FACULTY_COLUMN)
 
     df = df[columns_to_use]
 
@@ -107,6 +114,8 @@ def fetch_exam_data() -> pd.DataFrame:
         agg_dict[EXAM_FINISH_TIME_COLUMN] = "first"
     if CLASSROOM_CODE_COLUMN in df.columns:
         agg_dict[CLASSROOM_CODE_COLUMN] = ", ".join
+    if FACULTY_COLUMN in df.columns:
+        agg_dict[FACULTY_COLUMN] = "first"
 
     df = df.groupby(COURSE_CODE_COLUMN).agg(agg_dict).reset_index()
     df = df.sort_values(by=EXAM_DATE_COLUMN)
