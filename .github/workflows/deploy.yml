@@ -5,8 +5,8 @@ on:
     branches: [main]
     paths:
       - "backend/**"
+      - "backend/app/config.py"
       - ".github/workflows/deploy.yml"
-
   workflow_dispatch: # manual trigger from GitHub UI
 
 concurrency:
@@ -22,11 +22,16 @@ jobs:
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
+        env:
+          # Optional: set in repo secrets to clear DB tables when Excel structure changes
+          # e.g. REFRESH_DB_TABLES=search_logs,faculty_analytics
+          REFRESH_DB_TABLES: ${{ secrets.REFRESH_DB_TABLES }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
+          envs: REFRESH_DB_TABLES
           script: |
             set -e
 
@@ -37,24 +42,50 @@ jobs:
 
             cd backend
 
-            echo "▸ Building API image..."
-            docker compose build api
+            # ── Targeted cleanup: remove old cached .xlsx so new config is used ──
+            echo "▸ Clearing old cached Excel data..."
+            mkdir -p data
+            rm -f data/*.xlsx || true
 
-            echo "▸ Restarting containers..."
-            docker compose up -d
+            echo "▸ Building and recreating containers..."
+            docker compose up -d --build --force-recreate
 
-            echo "▸ Waiting for health check..."
-            sleep 8
+            echo "▸ Waiting for services to be ready..."
+            sleep 10
 
             echo "▸ Container status:"
             docker compose ps
 
-            echo "▸ Verifying API health..."
-            STATUS=$(docker inspect --format='{{.State.Status}}' exam-genius-api)
+            # ── Optional: clear DB tables when Excel structure/semester changes ──
+            if [ -n "$REFRESH_DB_TABLES" ]; then
+              echo "▸ Refreshing DB tables: $REFRESH_DB_TABLES"
+              for table in $(echo "$REFRESH_DB_TABLES" | tr ',' ' '); do
+                docker compose exec -T db psql -c "TRUNCATE TABLE $table CASCADE;" 2>/dev/null || true
+              done
+            fi
+
+            # ── Verify API container is running ──
+            STATUS=$(docker inspect --format='{{.State.Status}}' exam-genius-api 2>/dev/null || echo "missing")
             if [ "$STATUS" != "running" ]; then
               echo "✗ API container is not running (status: $STATUS)"
-              docker logs exam-genius-api --tail 20
+              docker compose logs api --tail 30
               exit 1
             fi
 
-            echo "✓ Deployment successful"
+            # ── Post-deployment health check: ping backend via Nginx ──
+            echo "▸ Verifying API health..."
+            for i in 1 2 3 4 5; do
+              if curl -sf http://localhost/health > /dev/null; then
+                echo "✓ Health check passed (attempt $i)"
+                break
+              fi
+              if [ "$i" -eq 5 ]; then
+                echo "✗ Health check failed after 5 attempts"
+                docker compose logs api --tail 20
+                exit 1
+              fi
+              echo "  Retry $i/5 in 3s..."
+              sleep 3
+            done
+
+            echo "✓ Deployment successful — clean, updated, and verified"
