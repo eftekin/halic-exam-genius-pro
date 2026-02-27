@@ -95,6 +95,12 @@ export default function CourseSelector({
       } else {
         onChange([...selected, course]);
       }
+      // Clear search query after toggling so the placeholder reappears
+      setQuery("");
+      // Blur input on touch devices to dismiss the mobile keyboard
+      if ("ontouchstart" in window) {
+        inputRef.current?.blur();
+      }
     },
     [selected, selectedLabels, onChange],
   );
@@ -111,7 +117,6 @@ export default function CourseSelector({
       e.preventDefault();
       if (filtered.length > 0) {
         toggle(filtered[0]);
-        setQuery("");
       }
     } else if (e.key === "Backspace" && query === "" && selected.length > 0) {
       // Remove the last selected course when backspace is pressed on empty input
