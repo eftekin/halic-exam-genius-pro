@@ -1,10 +1,14 @@
 # Haliç Exam Genius Pro
 
 ![Next.js 16](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)
+![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript 5](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Tailwind CSS 4](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
+![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![PostgreSQL 15](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-TLS-009639?logo=nginx&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
 A production-ready exam schedule platform built for **3 000+ Haliç University students**. Select your courses, instantly view exam dates and classrooms, export everything to your calendar, and share a clean PNG image — all from a single, mobile-first interface.
@@ -37,6 +41,7 @@ Every semester, Haliç University publishes a massive Excel spreadsheet containi
 | **Dark Mode**                 | Automatic theme switching based on `prefers-color-scheme` with smooth, flash-free rendering                                      |
 | **Bilingual (TR / EN)**       | Auto-detects browser locale; complete Turkish and English translation dictionaries                                               |
 | **Mobile-First UX**           | iOS-quality interface with `safe-area-inset` support, sticky header, and bottom action bar                                       |
+| **Analytics Pipeline**        | Every search is logged to PostgreSQL via background tasks — zero impact on response time                                         |
 
 ---
 
@@ -60,6 +65,7 @@ Every semester, Haliç University publishes a massive Excel spreadsheet containi
 | **FastAPI 0.115**                       | High-performance async API with auto-generated OpenAPI docs     |
 | **Pydantic v2** + **pydantic-settings** | Request/response validation and env-driven configuration        |
 | **Pandas** + **OpenPyXL**               | Excel parsing, data grouping, and sorting of 1 300+ course rows |
+| **SQLModel** + **asyncpg**              | Async PostgreSQL ORM for analytics with parameterised queries   |
 | **Plotly** + **Kaleido**                | Server-side PNG table rendering for the image export endpoint   |
 | **Uvicorn**                             | ASGI server with 4 workers behind Nginx reverse proxy           |
 
@@ -91,7 +97,7 @@ graph LR
         direction TB
         C["Nginx<br/>TLS + Reverse Proxy"]
         D["FastAPI<br/>4 Uvicorn Workers"]
-        E["PostgreSQL 15<br/>Analytics"]
+        E[("PostgreSQL 15<br/>Analytics DB")]
     end
 
     subgraph Halic["Haliç University"]
@@ -101,7 +107,7 @@ graph LR
     A -- HTTPS --> B
     B -- "HTTPS API calls" --> C
     C -- "proxy_pass :8000" --> D
-    D -- SQL --> E
+    D -- "async SQL<br/>(BackgroundTasks)" --> E
     D -- "HTTP GET (cached)" --> F
 ```
 
@@ -111,7 +117,42 @@ graph LR
 2. **Frontend** calls `POST /api/schedule` → request hits the Nginx reverse proxy on the DigitalOcean droplet.
 3. **Nginx** terminates TLS and forwards to the FastAPI backend on port 8000.
 4. **FastAPI** checks the in-memory cache (TTL: 1 hour). On cache miss, it downloads the `.xlsx` from Haliç University, parses it with Pandas, and caches the processed DataFrame.
-5. **Response** flows back: FastAPI → Nginx → Vercel CDN → Browser.
+5. **Background task** logs each searched course to PostgreSQL via `asyncpg` — this never blocks the student response.
+6. **Response** flows back: FastAPI → Nginx → Vercel CDN → Browser.
+
+---
+
+## Data Insights
+
+Haliç Exam Genius Pro uses **PostgreSQL 15** as a dedicated analytics store to capture anonymised usage trends. Every API call (`/schedule`, `/export/ics`, `/export/image`) is logged in the background via FastAPI's `BackgroundTasks` — the student response is **never delayed** by a database write.
+
+### Schema
+
+| Table                   | Purpose                                                                                                          |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **`search_logs`**       | One row per course per request — stores course code, course name, faculty, language, endpoint, and UTC timestamp |
+| **`faculty_analytics`** | Aggregated counters per department — total searches, unique courses, last search time, academic period           |
+
+### What We Track
+
+- **Most searched courses** — identify high-demand exams and allocate resources accordingly.
+- **Faculty-level trends** — understand which departments generate the most traffic (e.g. Engineering vs. Fine Arts).
+- **Temporal patterns** — detect usage spikes near exam weeks to pre-warm caches and scale infrastructure.
+- **Language preferences** — measure TR vs. EN adoption to guide future localisation efforts.
+- **Export method popularity** — compare ICS calendar downloads vs. PNG image shares.
+
+### How It Works
+
+```
+Student request → FastAPI handler → immediate JSON response
+                                  ↘ BackgroundTasks.add_task(log_search)
+                                      → async session → INSERT search_logs
+                                      → UPSERT faculty_analytics
+```
+
+All queries go through SQLModel / SQLAlchemy's ORM layer with **parameterised statements**, providing built-in SQL injection protection. The database connection string is loaded exclusively from environment variables — **no credentials are ever hardcoded**.
+
+The PostgreSQL container is isolated on an internal Docker network (`expose: 5432`) and is **not reachable from the public internet**. Only the `api` service can connect to it.
 
 ---
 
@@ -125,14 +166,18 @@ halic-exam-genius-pro/
 │   ├── docker-compose.yml       # API + PostgreSQL + Nginx
 │   ├── nginx.conf               # Reverse proxy + TLS + security headers
 │   ├── requirements.txt         # Python dependencies
-│   ├── .env.example             # Environment variable template
 │   └── app/
 │       ├── config.py            # Pydantic Settings (env-driven)
-│       ├── models/exam.py       # Request / response schemas
-│       ├── routes/exam.py       # API endpoints
+│       ├── database.py          # Async engine, session factory, pool mgmt
+│       ├── models/
+│       │   ├── exam.py          # Request / response Pydantic schemas
+│       │   └── analytics.py     # SearchLog + FacultyAnalytics (SQLModel)
+│       ├── routes/
+│       │   └── exam.py          # API endpoints with BackgroundTasks
 │       └── services/
-│           └── exam_service.py  # Excel parsing, schedule builder,
-│                                #   ICS generation, image export
+│           ├── exam_service.py  # Excel parsing, schedule builder,
+│           │                    #   ICS generation, image export
+│           └── analytics_service.py  # Background DB logger
 ├── frontend/
 │   ├── package.json
 │   ├── next.config.ts
@@ -228,7 +273,7 @@ Copy `.env.example` → `.env` and fill in real values. **Never commit `.env`.**
 | Variable                        | Description                        | Default                     |
 | ------------------------------- | ---------------------------------- | --------------------------- |
 | `EXAM_GENIUS_SECRET_KEY`        | Random secret for internal signing | _(required in production)_  |
-| `EXAM_GENIUS_CORS_ORIGINS`      | Allowed origins (JSON array)       | `["http://localhost:3000"]` |
+| `EXAM_GENIUS_CORS_ORIGINS`      | Allowed origins (comma-separated)  | `["http://localhost:3000"]` |
 | `EXAM_GENIUS_EXAM_SCHEDULE_URL` | URL to the university `.xlsx` file | Haliç CDN URL               |
 | `EXAM_GENIUS_DATABASE_URL`      | PostgreSQL connection string       | —                           |
 | `EXAM_GENIUS_CACHE_TTL_SECONDS` | In-memory cache TTL (seconds)      | `3600`                      |
@@ -271,6 +316,8 @@ Full interactive documentation is available at `/docs` (Swagger UI) when running
 - **Security headers** — `X-Frame-Options`, `X-Content-Type-Options`, `Strict-Transport-Security`, `Referrer-Policy`, and `Permissions-Policy` are set on every response
 - **CORS** — restricted to configured origin domains only
 - **Internal-only ports** — PostgreSQL (5432) and the API (8000) are not exposed to the host; only Nginx ports 80/443 are public
+- **SQL injection protection** — all database queries use SQLModel/SQLAlchemy parameterised statements
+- **Domain-only access** — all traffic routes through `api.halicexamgenius.app`; no hardcoded IP addresses in the codebase
 
 ---
 

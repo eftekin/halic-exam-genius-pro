@@ -114,14 +114,10 @@ async def log_search(
                 else:
                     fa.search_count += count
                     unique = {
-                        c
-                        for c in course_labels
-                        if _lookup_faculty(df, c) == faculty
+                        c for c in course_labels if _lookup_faculty(df, c) == faculty
                     }
                     fa.unique_courses = max(fa.unique_courses, len(unique))
-                    fa.last_searched_at = datetime.datetime.now(
-                        datetime.timezone.utc
-                    )
+                    fa.last_searched_at = datetime.datetime.now(datetime.timezone.utc)
 
             await session.commit()
 

@@ -135,9 +135,7 @@ async def export_ics(body: ICSRequest, background_tasks: BackgroundTasks):
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    background_tasks.add_task(
-        log_search, body.courses, body.language.value, "ics", df
-    )
+    background_tasks.add_task(log_search, body.courses, body.language.value, "ics", df)
 
     return Response(
         content=ics_content,

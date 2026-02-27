@@ -23,9 +23,18 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Exam Genius | Haliç Üniversitesi Sınav Programı",
+  title: "Haliç Exam Genius Pro",
   description:
-    "Haliç Üniversitesi sınav programını kolayca görüntüle, takvime aktar ve arkadaşlarınla paylaş.",
+    "Haliç University exam schedule platform — search courses, view exam dates and classrooms, export to Apple/Google/Outlook calendar, and share as PNG. Built for 3 000+ students.",
+  icons: {
+    icon: "/favicon.svg",
+  },
+  openGraph: {
+    title: "Haliç Exam Genius Pro",
+    description:
+      "Search your courses, instantly view exam dates & classrooms, export to calendar or share as PNG.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

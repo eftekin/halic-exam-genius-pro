@@ -92,6 +92,9 @@ yarn-error.log*
 # Vercel
 .vercel
 
+# ── Local dashboard (never push) ─────────────────────────────────
+dashboard/
+
 # ── Misc ─────────────────────────────────────────────────────────
 *.pem
 *.log
