@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import datetime
 
+from sqlalchemy import Column, DateTime
 from sqlmodel import Field, SQLModel
 
 
@@ -48,8 +49,12 @@ class SearchLog(SQLModel, table=True):
     )
     timestamp: datetime.datetime = Field(
         default_factory=lambda: datetime.datetime.now(datetime.timezone.utc),
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default="now()",
+        ),
         description="UTC timestamp with timezone",
-        sa_column_kwargs={"server_default": "now()"},
     )
 
 
@@ -78,6 +83,11 @@ class FacultyAnalytics(SQLModel, table=True):
     )
     last_searched_at: datetime.datetime = Field(
         default_factory=lambda: datetime.datetime.now(datetime.timezone.utc),
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            server_default="now()",
+        ),
         description="Most recent search timestamp for this faculty",
     )
     period: str = Field(
