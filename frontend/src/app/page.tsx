@@ -14,6 +14,13 @@ import ExamCard, { ExamCardSkeleton } from "@/components/ExamCard";
 import { EmptyState, ErrorState } from "@/components/States";
 import ExportBar from "@/components/ExportBar";
 import ExportView from "@/components/ExportView";
+import {
+  ACADEMIC_YEAR,
+  SEMESTER_TR,
+  SEMESTER_EN,
+  EXAM_TYPE_TR,
+  EXAM_TYPE_EN,
+} from "@/config/constants";
 
 /* Stable empty array — never creates a new reference */
 const EMPTY_SCHEDULE: ExamDetail[] = [];
@@ -112,6 +119,10 @@ export default function Home() {
               </h1>
               <p className="text-xs text-zinc-500">{t.subtitle}</p>
             </div>
+            <span className="ml-auto self-center rounded-full border border-zinc-200 px-2.5 py-0.5 text-[11px] font-medium text-zinc-400 dark:border-zinc-700 dark:text-zinc-500">
+              {ACADEMIC_YEAR} {lang === "tr" ? SEMESTER_TR : SEMESTER_EN} |{" "}
+              {lang === "tr" ? EXAM_TYPE_TR : EXAM_TYPE_EN}
+            </span>
           </div>
 
           <div className="mt-3">
