@@ -17,7 +17,7 @@ jobs:
   deploy:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
 
     steps:
       - name: Deploy via SSH
@@ -31,6 +31,7 @@ jobs:
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
+          command_timeout: 20m
           envs: REFRESH_DB_TABLES
           script: |
             set -e
@@ -48,7 +49,7 @@ jobs:
             rm -f data/*.xlsx || true
 
             echo "▸ Building and recreating containers..."
-            docker compose up -d --build --force-recreate
+            DOCKER_BUILDKIT=1 docker compose up -d --build --force-recreate
 
             echo "▸ Waiting for services to be ready..."
             sleep 10

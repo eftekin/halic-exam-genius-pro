@@ -1,0 +1,19 @@
+# Reduce build context; exclude dev/cache files
+__pycache__
+*.py[cod]
+*$py.class
+.venv
+venv
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+*.md
+.pytest_cache
+.coverage
+htmlcov
+.mypy_cache
+.ruff_cache
+data
+*.xlsx
