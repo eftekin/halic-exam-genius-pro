@@ -48,6 +48,9 @@ class Settings(BaseSettings):
     # Cache TTL for exam data (seconds). 0 = no auto-expiry.
     cache_ttl_seconds: int = 3600
 
+    # Background sync: check Excel URL for changes (seconds). 0 = disabled.
+    sync_check_interval_seconds: int = 1800  # 30 min
+
     class Config:
         env_prefix = "EXAM_GENIUS_"
 

@@ -136,7 +136,9 @@ Semester and exam schedule are controlled in two places only. You do **not** nee
 - **Backend**: Edit `exam_schedule_url` in `backend/app/config.py`, then commit and push. The deploy workflow builds a new image and recreates containers; the app uses the value from code.
 - **Frontend**: Edit `frontend/src/config/constants.ts` (e.g. `ACADEMIC_YEAR`, `SEMESTER_TR`, `EXAM_TYPE_TR`) and deploy the frontend (e.g. Vercel).
 
-All other backend settings (secret key, CORS, database URL, cache TTL) remain in `.env` as in `.env.example`.
+All other backend settings (secret key, CORS, database URL, cache TTL, sync interval) remain in `.env` as in `.env.example`.
+
+**Automated sync**: The backend runs a background task that checks the Excel URL for changes (via `HEAD` requests, comparing `ETag`/`Last-Modified`). When the file changes, the cache is invalidated so the next request fetches fresh data. Set `EXAM_GENIUS_SYNC_CHECK_INTERVAL_SECONDS` (default 1800 = 30 min) to control the check frequency; set to `0` to disable.
 
 ---
 

@@ -64,14 +64,29 @@ def _validate_courses(df, labels: list[str]) -> None:
     summary="List all available courses",
 )
 async def list_courses():
-    """Return every course from the current exam schedule."""
+    """Return every course from the current exam schedule.
+
+    Fast path: when cache is warm, returns pre-built list without touching
+    the executor. Cold path: fetches Excel, builds cache, then returns.
+    """
+    from app.services.exam_service import get_cached_courses
+
+    # Fast path: cache warm → return immediately (no executor)
+    courses_raw = get_cached_courses()
+    if courses_raw is not None:
+        return CoursesResponse(
+            total=len(courses_raw),
+            courses=[CourseItem(**c) for c in courses_raw],
+        )
+
+    # Cold path: fetch and build cache
     df = await _get_df()
-
-    from app.services.exam_service import get_all_courses
-
-    courses_raw = get_all_courses(df)
-    courses = [CourseItem(**c) for c in courses_raw]
-    return CoursesResponse(total=len(courses), courses=courses)
+    courses_raw = get_cached_courses()
+    assert courses_raw is not None  # populated by get_exam_dataframe
+    return CoursesResponse(
+        total=len(courses_raw),
+        courses=[CourseItem(**c) for c in courses_raw],
+    )
 
 
 @router.post(
