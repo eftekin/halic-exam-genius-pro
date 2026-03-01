@@ -5,14 +5,14 @@ name: Sync Cache
 
 on:
   schedule:
-    - cron: "0 6 * * *"  # Daily at 06:00 UTC
+    - cron: "0 6 * * *" # Daily at 06:00 UTC
   workflow_dispatch:
 
 jobs:
   invalidate:
     name: Invalidate cache
     runs-on: ubuntu-latest
-    if: ${{ secrets.CACHE_INVALIDATE_URL != '' }}
+    if: secrets.CACHE_INVALIDATE_URL != ''
     steps:
       - name: Invalidate exam data cache
         run: |
