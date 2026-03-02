@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import uuid
 from functools import partial
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
@@ -118,9 +117,8 @@ async def get_schedule(body: ScheduleRequest, background_tasks: BackgroundTasks)
     schedule = [ExamDateDetail(**item) for item in items]
 
     # ── Analytics (fire-and-forget in background) ─────────────────────
-    request_id = str(uuid.uuid4())
     background_tasks.add_task(
-        log_search, body.courses, body.language.value, "schedule", df, request_id
+        log_search, body.courses, body.language.value, "schedule", df
     )
 
     return ScheduleResponse(schedule=schedule)
@@ -152,10 +150,7 @@ async def export_ics(body: ICSRequest, background_tasks: BackgroundTasks):
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    request_id = str(uuid.uuid4())
-    background_tasks.add_task(
-        log_search, body.courses, body.language.value, "ics", df, request_id
-    )
+    background_tasks.add_task(log_search, body.courses, body.language.value, "ics", df)
 
     return Response(
         content=ics_content,
@@ -192,9 +187,8 @@ async def export_image(body: ImageRequest, background_tasks: BackgroundTasks):
             status_code=500, detail=f"Image generation failed: {exc}"
         ) from exc
 
-    request_id = str(uuid.uuid4())
     background_tasks.add_task(
-        log_search, body.courses, body.language.value, "image", df, request_id
+        log_search, body.courses, body.language.value, "image", df
     )
 
     return Response(

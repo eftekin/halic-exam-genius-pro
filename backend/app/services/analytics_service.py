@@ -54,16 +54,10 @@ async def log_search(
     language: str = "tr",
     endpoint: str = "schedule",
     df: pd.DataFrame | None = None,
-    request_id: str = "",
 ) -> None:
     """Persist one ``SearchLog`` row per course **in the background**.
 
     Also upserts ``FacultyAnalytics`` counters.
-
-    Deduplicates based on request_id to prevent duplicate entries from the same
-    request being processed multiple times (e.g., React StrictMode, network retries).
-    Different students' simultaneous searches are always logged separately because
-    they have different request IDs.
 
     This function is designed to be handed to ``BackgroundTasks.add_task``
     and must **never** raise — all exceptions are swallowed and logged.
@@ -74,21 +68,7 @@ async def log_search(
             return  # DB not configured — silently skip
 
         async with session:
-            from sqlmodel import select
-
             faculty_map: dict[str, int] = {}
-
-            # Check if this request_id has already been processed
-            if request_id:
-                stmt = select(SearchLog).where(SearchLog.request_id == request_id)
-                result = await session.execute(stmt)
-                existing = result.scalars().first()
-
-                if existing is not None:
-                    logger.debug(
-                        f"Skipping duplicate search log for request {request_id} (already processed)"
-                    )
-                    return  # Entire request is a duplicate, skip all courses
 
             for label in course_labels:
                 code, name = _parse_label(label)
@@ -100,7 +80,6 @@ async def log_search(
                     faculty_name=faculty,
                     language=language,
                     endpoint=endpoint,
-                    request_id=request_id,
                 )
                 session.add(row)
 
@@ -111,6 +90,8 @@ async def log_search(
 
             # Upsert faculty analytics
             for faculty, count in faculty_map.items():
+                from sqlmodel import select
+
                 stmt = select(FacultyAnalytics).where(
                     FacultyAnalytics.faculty_name == faculty
                 )
