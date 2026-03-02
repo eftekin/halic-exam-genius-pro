@@ -47,6 +47,12 @@ class SearchLog(SQLModel, table=True):
         default="schedule",
         description="Which API endpoint was called (schedule / ics / image)",
     )
+    request_id: str = Field(
+        max_length=36,
+        default="",
+        index=True,
+        description="Unique request ID to deduplicate duplicate request processing",
+    )
     timestamp: datetime.datetime = Field(
         default_factory=lambda: datetime.datetime.now(datetime.timezone.utc),
         sa_column=Column(
