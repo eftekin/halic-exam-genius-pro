@@ -6,6 +6,14 @@ from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 
+ALLOWED_ORIGINS = [
+    "https://halicexamgenius.app",
+    "https://www.halicexamgenius.app",
+    "https://halic-exam-genius-pro.vercel.app",
+    "http://localhost:3000",
+]
+
+
 class Settings(BaseSettings):
     """App-wide settings, overridable via environment variables.
 
@@ -32,7 +40,7 @@ class Settings(BaseSettings):
     # ── CORS ──────────────────────────────────────────────────────────────
     # In production set to your Vercel domain(s), comma-separated:
     #   EXAM_GENIUS_CORS_ORIGINS=https://exam-genius.vercel.app
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: list[str] = ALLOWED_ORIGINS
 
     @field_validator("cors_origins", mode="before")
     @classmethod
