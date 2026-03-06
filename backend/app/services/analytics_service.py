@@ -67,10 +67,13 @@ async def log_search(
         if session is None:
             return  # DB not configured — silently skip
 
+        # Deduplicate course labels to prevent duplicate log entries
+        unique_labels = list(dict.fromkeys(course_labels))
+
         async with session:
             faculty_map: dict[str, int] = {}
 
-            for label in course_labels:
+            for label in unique_labels:
                 code, name = _parse_label(label)
                 faculty = _lookup_faculty(df, label)
 
@@ -105,7 +108,7 @@ async def log_search(
                         unique_courses=len(
                             {
                                 c
-                                for c in course_labels
+                                for c in unique_labels
                                 if _lookup_faculty(df, c) == faculty
                             }
                         ),
@@ -114,7 +117,7 @@ async def log_search(
                 else:
                     fa.search_count += count
                     unique = {
-                        c for c in course_labels if _lookup_faculty(df, c) == faculty
+                        c for c in unique_labels if _lookup_faculty(df, c) == faculty
                     }
                     fa.unique_courses = max(fa.unique_courses, len(unique))
                     fa.last_searched_at = datetime.datetime.now(datetime.timezone.utc)
