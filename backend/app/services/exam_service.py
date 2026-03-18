@@ -290,9 +290,7 @@ def build_schedule(
         row = _lookup_course(df, label)
         course_code = str(row[COURSE_CODE_COLUMN])
         course_name = str(row[COURSE_NAME_COLUMN])
-        instructor = (
-            str(row[FACULTY_COLUMN]) if FACULTY_COLUMN in df.columns else ""
-        )
+        instructor = str(row[FACULTY_COLUMN]) if FACULTY_COLUMN in df.columns else ""
         exam_date = get_exam_date(df, label, language)
 
         entry: dict = {
