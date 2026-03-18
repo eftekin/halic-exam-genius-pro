@@ -47,7 +47,8 @@ const translations = {
     generating: "Oluşturuluyor...",
     calendar_error: "Takvim dosyası oluşturulamadı.",
     share_title: "Sınav Programım",
-    share_text: "İşte sınav programım! Haliç Exam Genius ile oluşturuldu.",
+    share_text:
+      "İşte sınav programım! Haliç Exam Genius ile oluşturuldu: https://halicexamgenius.app/",
     share_error: "Görsel oluşturulamadı.",
     share_tooltip: "Paylaş / PNG İndir",
 
@@ -87,7 +88,8 @@ const translations = {
     generating: "Generating...",
     calendar_error: "Could not generate calendar file.",
     share_title: "My Exam Schedule",
-    share_text: "Here's my exam schedule! Created with Haliç Exam Genius.",
+    share_text:
+      "Here's my exam schedule! Created with Haliç Exam Genius: https://halicexamgenius.app/",
     share_error: "Could not generate image.",
     share_tooltip: "Share / Download PNG",
 
