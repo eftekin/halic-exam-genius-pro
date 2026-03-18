@@ -9,6 +9,7 @@ called from async route handlers via ``run_in_executor`` or directly.
 from __future__ import annotations
 
 import datetime
+import hashlib
 import io
 import logging
 import time
@@ -194,6 +195,24 @@ def _lookup_course(df: pd.DataFrame, course_label: str) -> pd.Series:
     return rows.iloc[0]
 
 
+def _build_exam_id(
+    course_code: str,
+    course_name: str,
+    instructor: str,
+    exam_date: str,
+) -> str:
+    """Return a stable ID for a course exam entry."""
+    payload = "|".join(
+        [
+            course_code.strip().lower(),
+            course_name.strip().lower(),
+            instructor.strip().lower(),
+            exam_date.strip().lower(),
+        ]
+    )
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:24]
+
+
 # ── Public query helpers ─────────────────────────────────────────────────────
 
 
@@ -268,9 +287,18 @@ def build_schedule(
     """
     items: list[dict] = []
     for label in course_labels:
+        row = _lookup_course(df, label)
+        course_code = str(row[COURSE_CODE_COLUMN])
+        course_name = str(row[COURSE_NAME_COLUMN])
+        instructor = (
+            str(row[FACULTY_COLUMN]) if FACULTY_COLUMN in df.columns else ""
+        )
+        exam_date = get_exam_date(df, label, language)
+
         entry: dict = {
-            "course_name": get_course_name(df, label),
-            "exam_date": get_exam_date(df, label, language),
+            "id": _build_exam_id(course_code, course_name, instructor, exam_date),
+            "course_name": course_name,
+            "exam_date": exam_date,
         }
         if include_classroom:
             entry["classrooms"] = get_classroom(df, label)

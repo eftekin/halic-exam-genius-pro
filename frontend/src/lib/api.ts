@@ -25,6 +25,7 @@ export interface CoursesResponse {
 
 /** Exam information for a single course. */
 export interface ExamDetail {
+  id: string;
   course_name: string;
   exam_date: string;
   classrooms: string[];

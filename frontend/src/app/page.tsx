@@ -157,7 +157,7 @@ export default function Home() {
         {scheduleError && (
           <ErrorState
             message={scheduleError}
-            onRetry={() => setSelected([...selected])}
+            onRetry={() => setSelected((prev) => [...prev])}
             t={t}
           />
         )}
@@ -186,12 +186,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 gap-2">
               {schedule.map((exam, i) => (
-                <ExamCard
-                  key={`${exam.course_name}-${exam.exam_date}`}
-                  exam={exam}
-                  index={i}
-                  t={t}
-                />
+                <ExamCard key={exam.id} exam={exam} index={i} t={t} />
               ))}
             </div>
           </>

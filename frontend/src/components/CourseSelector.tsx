@@ -8,7 +8,7 @@ import type { Translations } from "@/lib/i18n";
 interface CourseSelectorProps {
   courses: Course[];
   selected: Course[];
-  onChange: (courses: Course[]) => void;
+  onChange: React.Dispatch<React.SetStateAction<Course[]>>;
   isLoading?: boolean;
   t: Translations;
 }
@@ -90,11 +90,13 @@ export default function CourseSelector({
 
   const toggle = useCallback(
     (course: Course) => {
-      if (selectedLabels.has(course.label)) {
-        onChange(selected.filter((c) => c.label !== course.label));
-      } else {
-        onChange([...selected, course]);
-      }
+      onChange((prev) => {
+        const exists = prev.some((c) => c.label === course.label);
+        return exists
+          ? prev.filter((c) => c.label !== course.label)
+          : [...prev, course];
+      });
+
       // Clear search query after toggling so the placeholder reappears
       setQuery("");
       // Blur input on touch devices to dismiss the mobile keyboard
@@ -102,14 +104,14 @@ export default function CourseSelector({
         inputRef.current?.blur();
       }
     },
-    [selected, selectedLabels, onChange],
+    [onChange],
   );
 
   const removeChip = useCallback(
     (label: string) => {
-      onChange(selected.filter((c) => c.label !== label));
+      onChange((prev) => prev.filter((c) => c.label !== label));
     },
-    [selected, onChange],
+    [onChange],
   );
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -120,7 +122,7 @@ export default function CourseSelector({
       }
     } else if (e.key === "Backspace" && query === "" && selected.length > 0) {
       // Remove the last selected course when backspace is pressed on empty input
-      onChange(selected.slice(0, -1));
+      onChange((prev) => prev.slice(0, -1));
     } else if (e.key === "Escape") {
       setOpen(false);
       inputRef.current?.blur();

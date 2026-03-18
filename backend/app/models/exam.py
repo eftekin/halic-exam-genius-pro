@@ -44,6 +44,7 @@ class CoursesResponse(BaseModel):
 class ExamDateDetail(BaseModel):
     """Exam info for a single course."""
 
+    id: str = Field(..., description="Stable unique exam identifier")
     course_name: str
     exam_date: str = Field(
         ..., description="Formatted date string, e.g. '15/01/2026 Perşembe 09:00-11:00'"

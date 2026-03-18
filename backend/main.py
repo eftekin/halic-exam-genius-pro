@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 from app.config import ALLOWED_ORIGINS, settings
 from app.database import close_db, init_db
@@ -52,6 +53,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Compress response bodies to reduce payload size over slow networks.
+app.add_middleware(GZipMiddleware, minimum_size=500)
 
 # ── Routers ──────────────────────────────────────────────────────────────────
 app.include_router(exam_router)
