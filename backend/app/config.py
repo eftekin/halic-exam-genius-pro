@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     # ║  Go to halic.edu.tr → announcements → find the new .xlsx link ║
     # ╚══════════════════════════════════════════════════════════════════╝
     exam_schedule_url: str = (
-        "https://halic.edu.tr/tr/s-duyurular/Documents/2025/05/05/2024-2025-bahar-donemi-final-sinavlari-tum-liste.xlsx"
+        "https://halic.edu.tr/wp-content/uploads/duyurular/2026/03/18/2025-2026-bahar-donemi-vize-tum-liste.xlsx"
     )
 
     # ── CORS ──────────────────────────────────────────────────────────────
