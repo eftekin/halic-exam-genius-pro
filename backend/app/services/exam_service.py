@@ -80,9 +80,10 @@ def fetch_exam_data() -> pd.DataFrame:
     # ── Clean course code / name (vectorized — 10–50× faster than apply) ───
     df[COURSE_CODE_COLUMN] = df[COURSE_CODE_COLUMN].astype(str).str.split(";").str[0]
     df[COURSE_NAME_COLUMN] = df[COURSE_NAME_COLUMN].astype(str).str.split(";").str[0]
-    df[COURSE_CODE_COLUMN] = df[COURSE_CODE_COLUMN].map(
-        lambda y: unidecode(y).lower()
-    )  # unidecode has no vectorized equivalent
+    # Preserve original Turkish characters (Ü, Ö, Ç, etc.) in course codes to
+    # avoid collisions (e.g. HLU1004 vs HLÜ1004).  Only strip whitespace and
+    # lowercase — unidecode is used later for a *search-only* column.
+    df[COURSE_CODE_COLUMN] = df[COURSE_CODE_COLUMN].str.strip().str.upper()
     # ── Clean faculty name (take the first entry from the semicolon list) ───
     if FACULTY_COLUMN in df.columns:
         df[FACULTY_COLUMN] = (
@@ -217,14 +218,17 @@ def _build_exam_id(
 
 
 def get_all_courses(df: pd.DataFrame) -> list[dict[str, str]]:
-    """Return a list of ``{code, name, label}`` dicts for every course.
+    """Return a list of ``{code, name, search_code, label}`` dicts for every course.
 
+    ``search_code`` is the ASCII-transliterated (unidecoded) version of the
+    course code so the frontend can match user input like "hlu" against "hlü".
     Uses vectorized column access instead of iterrows (≈100× faster).
     """
     return [
         {
             "code": code,
             "name": name,
+            "search_code": unidecode(code).lower(),
             "label": label,
         }
         for code, name, label in zip(

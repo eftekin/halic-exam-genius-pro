@@ -26,8 +26,12 @@ class ExamType(str, Enum):
 class CourseItem(BaseModel):
     """A single course entry returned by the /courses endpoint."""
 
-    code: str = Field(..., description="Normalized (lowercase, ascii) course code")
+    code: str = Field(..., description="Lowercase course code preserving original Turkish characters")
     name: str = Field(..., description="Original course name")
+    search_code: str = Field(
+        ...,
+        description="ASCII-transliterated lowercase course code for search matching (e.g. 'hlu1004' for 'hlü1004')",
+    )
     label: str = Field(
         ...,
         description="Combined label shown in the UI, e.g. 'BIL101 (Bilgisayara Giriş)'",

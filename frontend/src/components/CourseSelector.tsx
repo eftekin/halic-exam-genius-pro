@@ -26,10 +26,11 @@ function buildAcronym(name: string): string {
 function matchesCourse(course: Course, q: string): boolean {
   const lower = q.toLowerCase();
 
-  // Substring match on label, code, or full name
+  // Substring match on label, code, search_code (ASCII-transliterated), or full name
   if (
     course.label.toLowerCase().includes(lower) ||
     course.code.toLowerCase().includes(lower) ||
+    course.search_code.toLowerCase().includes(lower) ||
     course.name.toLowerCase().includes(lower)
   )
     return true;
