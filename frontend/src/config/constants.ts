@@ -15,8 +15,8 @@ export const SEMESTER_EN = "Spring";
  * TR options: "Vize" | "Final" | "Bütünleme"
  * EN options: "Midterm" | "Final" | "Makeup"
  */
-export const EXAM_TYPE_TR = "Vize";
-export const EXAM_TYPE_EN = "Midterm";
+export const EXAM_TYPE_TR = "Final";
+export const EXAM_TYPE_EN = "Final";
 
 /** University name */
 export const UNIVERSITY_NAME_TR = "Haliç Üniversitesi";
