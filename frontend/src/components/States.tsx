@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, AlertCircle, RotateCcw } from "lucide-react";
+import { AlertCircle, BookOpen, RotateCcw } from "lucide-react";
 import type { Translations } from "@/lib/i18n";
 
 /** Placeholder shown when no courses are selected yet. */
