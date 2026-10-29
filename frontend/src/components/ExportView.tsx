@@ -8,39 +8,22 @@ import {
   SEMESTER_EN,
   SEMESTER_TR,
 } from "@/config/constants";
-import type { ExamDetail } from "@/lib/api";
-import type { Translations } from "@/lib/i18n";
+import type { Exam } from "@/lib/api";
+import { formatDate, sessionLabel, weekday } from "@/lib/exam";
+import type { Lang, Translations } from "@/lib/i18n";
 
-/*
- * ExportView — The PNG source of truth.
- *
- * White background, black text, 1px solid black borders.
- * 100% inline styles — no Tailwind, no CSS classes.
- * Looks like an official document a student can download.
- *
- * Rendered off-screen at fixed left:-9999px.
- * html-to-image captures this node directly.
- */
-
+// Off-screen PNG source for html-to-image; inline styles only.
 interface ExportViewProps {
-  exams: ExamDetail[];
+  exams: Exam[];
   t: Translations;
-  lang: string;
+  lang: Lang;
 }
 
-function getScheduleTitle(lang: string) {
+function getScheduleTitle(lang: Lang) {
   const semester = lang === "tr" ? SEMESTER_TR : SEMESTER_EN;
   const examType = lang === "tr" ? EXAM_TYPE_TR : EXAM_TYPE_EN;
   const suffix = lang === "tr" ? "Sınav Programı" : "Exam Schedule";
   return `${ACADEMIC_YEAR} ${semester} ${examType} ${suffix}`;
-}
-
-function parseExamDate(raw: string) {
-  const parts = raw.split(" ");
-  const date = parts[0] ?? "";
-  const weekday = parts[1] ?? "";
-  const time = parts.slice(2).join(" ");
-  return { date, weekday, time };
 }
 
 const ExportView = forwardRef<HTMLDivElement, ExportViewProps>(
@@ -80,7 +63,6 @@ const ExportView = forwardRef<HTMLDivElement, ExportViewProps>(
           padding: 28,
         }}
       >
-        {/* Header */}
         <div
           style={{
             borderBottom: "3px solid #001BC3",
@@ -106,7 +88,6 @@ const ExportView = forwardRef<HTMLDivElement, ExportViewProps>(
           </div>
         </div>
 
-        {/* Table */}
         <table
           style={{
             width: "100%",
@@ -125,7 +106,7 @@ const ExportView = forwardRef<HTMLDivElement, ExportViewProps>(
           </thead>
           <tbody>
             {exams.map((exam, i) => {
-              const { date, weekday, time } = parseExamDate(exam.exam_date);
+              const session = sessionLabel(exam, t.section);
               return (
                 <tr
                   key={exam.id}
@@ -135,20 +116,22 @@ const ExportView = forwardRef<HTMLDivElement, ExportViewProps>(
                 >
                   <td style={tdStyle}>{i + 1}</td>
                   <td style={{ ...tdStyle, fontWeight: 600 }}>
-                    {exam.course_name}
+                    {exam.name}
+                    {session && ` (${session})`}
                   </td>
                   <td style={tdStyle}>
-                    {date} {weekday}
+                    {formatDate(exam.date)} {weekday(exam.date, lang)}
                   </td>
-                  <td style={tdStyle}>{time || "—"}</td>
-                  <td style={tdStyle}>{exam.classrooms?.join(", ") || "—"}</td>
+                  <td style={tdStyle}>
+                    {exam.start}-{exam.end}
+                  </td>
+                  <td style={tdStyle}>{exam.rooms.join(", ") || "—"}</td>
                 </tr>
               );
             })}
           </tbody>
         </table>
 
-        {/* Footer */}
         <div
           style={{
             marginTop: 14,

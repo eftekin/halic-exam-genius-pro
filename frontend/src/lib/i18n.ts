@@ -41,6 +41,7 @@ const translations = {
     // Schedule
     exams_listed: (n: number) => `${n} sınav listelendi`,
     exam_type: EXAM_TYPE_TR,
+    section: "Şube",
 
     // ExportBar
     add_all_to_calendar: (n: number) => `Tümünü Takvime Ekle (${n})`,
@@ -59,7 +60,6 @@ const translations = {
     error_title: "Bir Sorun Oluştu",
     retry: "Tekrar Dene",
     courses_load_error: "Dersler yüklenemedi",
-    schedule_load_error: "Program yüklenemedi",
 
     // Calendar ICS
     ics_summary: (course: string) => `${course} ${EXAM_TYPE_TR}`,
@@ -83,6 +83,7 @@ const translations = {
 
     exams_listed: (n: number) => `${n} exams listed`,
     exam_type: EXAM_TYPE_EN,
+    section: "Section",
 
     add_all_to_calendar: (n: number) => `Add All to Calendar (${n})`,
     generating: "Generating...",
@@ -99,7 +100,6 @@ const translations = {
     error_title: "Something Went Wrong",
     retry: "Retry",
     courses_load_error: "Could not load courses",
-    schedule_load_error: "Could not load schedule",
 
     ics_summary: (course: string) => `${course} ${EXAM_TYPE_EN}`,
     ics_description: (course: string) =>
