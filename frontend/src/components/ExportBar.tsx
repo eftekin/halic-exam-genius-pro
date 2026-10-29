@@ -105,6 +105,7 @@ export default function ExportBar({
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 pt-3 pb-safe">
         {/* ICS */}
         <button
+          type="button"
           onClick={handleICS}
           disabled={isDisabled || icsLoading}
           className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
@@ -115,6 +116,7 @@ export default function ExportBar({
 
         {/* PNG */}
         <button
+          type="button"
           onClick={handleShare}
           disabled={isDisabled || shareLoading}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-600 disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
