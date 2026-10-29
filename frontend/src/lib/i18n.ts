@@ -68,6 +68,7 @@ const translations = {
 
     // Footer
     footer: "Haliç Exam Genius",
+    update_on_github: "Program güncel değil mi? GitHub'da güncelle",
   },
 
   en: {
@@ -106,6 +107,7 @@ const translations = {
       `${UNIVERSITY_NAME_EN} — ${course} ${EXAM_TYPE_EN} (${ACADEMIC_YEAR} ${SEMESTER_EN})`,
 
     footer: "Haliç Exam Genius",
+    update_on_github: "Schedule out of date? Update it on GitHub",
   },
 } as const;
 

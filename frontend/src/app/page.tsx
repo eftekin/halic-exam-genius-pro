@@ -1,11 +1,15 @@
 "use client";
 
-import { GraduationCap } from "lucide-react";
+import { GraduationCap, Star } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CourseSelector from "@/components/CourseSelector";
 import ExamCard from "@/components/ExamCard";
 import ExportBar from "@/components/ExportBar";
 import ExportView from "@/components/ExportView";
+import GitHubIcon, {
+  REPO_URL,
+  UPDATE_SCHEDULE_URL,
+} from "@/components/GitHubIcon";
 import { EmptyState, ErrorState } from "@/components/States";
 import {
   ACADEMIC_YEAR,
@@ -74,6 +78,18 @@ export default function Home() {
                 {t.subtitle}
               </p>
             </div>
+
+            <a
+              href={REPO_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Star on GitHub"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            >
+              <GitHubIcon className="h-4 w-4" />
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              Star
+            </a>
           </div>
 
           <div className="mt-3">
@@ -124,7 +140,18 @@ export default function Home() {
         )}
 
         <footer className="mt-10 pb-4 text-center text-[11px] text-zinc-400 dark:text-zinc-600">
-          {t.footer} &copy; {new Date().getFullYear()}
+          <a
+            href={UPDATE_SCHEDULE_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-2 inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+          >
+            <GitHubIcon className="h-3.5 w-3.5" />
+            {t.update_on_github}
+          </a>
+          <div>
+            {t.footer} &copy; {new Date().getFullYear()}
+          </div>
         </footer>
       </main>
 
