@@ -128,7 +128,7 @@ const ExportView = forwardRef<HTMLDivElement, ExportViewProps>(
               const { date, weekday, time } = parseExamDate(exam.exam_date);
               return (
                 <tr
-                  key={exam.course_name + i}
+                  key={exam.id}
                   style={{
                     backgroundColor: i % 2 === 0 ? "#fff" : "#fafafa",
                   }}

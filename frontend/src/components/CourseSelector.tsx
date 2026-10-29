@@ -133,6 +133,7 @@ export default function CourseSelector({
   return (
     <div ref={containerRef} className="relative w-full">
       {/* Trigger — chip-aware input bar */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: mouse-only shortcut, the input inside is keyboard-focusable */}
       <div
         className="flex min-h-11 w-full cursor-text items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
         onClick={() => {

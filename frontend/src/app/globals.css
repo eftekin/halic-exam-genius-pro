@@ -33,7 +33,9 @@ html {
 *,
 *::before,
 *::after {
+  /* biome-ignore lint/complexity/noImportantStyles: must beat every component transition to stop the flash */
   transition: none !important;
+  /* biome-ignore lint/complexity/noImportantStyles: same as above */
   animation-duration: 0s !important;
 }
 

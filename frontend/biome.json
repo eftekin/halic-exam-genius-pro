@@ -5,7 +5,7 @@
   "javascript": { "formatter": { "quoteStyle": "double" } },
   "css": { "parser": { "tailwindDirectives": true } },
   "linter": {
-    "rules": { "recommended": true },
+    "rules": { "preset": "recommended" },
     "domains": { "react": "recommended", "next": "recommended" }
   },
   "assist": { "actions": { "source": { "organizeImports": "on" } } }

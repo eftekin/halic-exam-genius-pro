@@ -165,6 +165,7 @@ export default function Home() {
         {showSkeletons && (
           <div className="grid grid-cols-1 gap-2">
             {Array.from({ length: selected.length || 3 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: static placeholders, never reordered
               <ExamCardSkeleton key={i} />
             ))}
           </div>
