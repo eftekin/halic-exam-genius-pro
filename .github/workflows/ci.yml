@@ -29,3 +29,16 @@ jobs:
       - run: npm ci
       - run: npx biome ci
       - run: npm run build
+
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: scripts
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv run --locked pytest -q
+        env:
+          TZ: UTC
