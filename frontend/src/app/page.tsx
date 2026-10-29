@@ -83,12 +83,12 @@ export default function Home() {
               href={REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Star on GitHub"
+              aria-label={t.star_label}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-zinc-200 px-2.5 py-1.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
             >
               <GitHubIcon className="h-4 w-4" />
               <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              Star
+              {t.star}
             </a>
           </div>
 

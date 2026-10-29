@@ -69,6 +69,8 @@ const translations = {
     // Footer
     footer: "Haliç Exam Genius",
     update_on_github: "Program güncel değil mi? GitHub'da güncelle",
+    star: "Yıldız ver",
+    star_label: "GitHub'da yıldız ver",
   },
 
   en: {
@@ -108,6 +110,8 @@ const translations = {
 
     footer: "Haliç Exam Genius",
     update_on_github: "Schedule out of date? Update it on GitHub",
+    star: "Star",
+    star_label: "Star on GitHub",
   },
 } as const;
 
