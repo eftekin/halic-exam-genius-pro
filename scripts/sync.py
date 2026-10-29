@@ -143,7 +143,7 @@ def build_exams(df: pd.DataFrame) -> tuple[list[dict], Counter]:
         entries = []
         for slot, srows in sorted(slots.items()):
             entry = {
-                "id": f"{code}-{slot[0]}-{slot[1]}",
+                "id": f"{code}-{slot[0]}-{slot[1]}-{slot[2]}",
                 "code": code,
                 "name": name,
                 "search_code": code.translate(ASCII).lower(),
@@ -174,6 +174,9 @@ def build_exams(df: pd.DataFrame) -> tuple[list[dict], Counter]:
     exams.sort(key=lambda e: (e["date"], e["start"], e["code"], e.get("section", "")))
     if len(exams) < MIN_EXAMS:
         raise SyncError(f"only {len(exams)} exams parsed, expected at least {MIN_EXAMS}")
+    dup_ids = [i for i, n in Counter(e["id"] for e in exams).items() if n > 1]
+    if dup_ids:
+        raise SyncError(f"duplicate exam ids: {dup_ids[:5]}")
     stats["exams"], stats["courses"] = len(exams), len(by_code)
     return exams, stats
 

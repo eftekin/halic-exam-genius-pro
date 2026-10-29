@@ -14,12 +14,8 @@ import {
   SEMESTER_EN,
   SEMESTER_TR,
 } from "@/config/constants";
-import {
-  type Course,
-  type ExamDetail,
-  fetchCourses,
-  fetchSchedule,
-} from "@/lib/api";
+import { type Exam, fetchExams } from "@/lib/api";
+import { compareExams } from "@/lib/exam";
 import { useLanguage } from "@/lib/i18n";
 
 /* Stable empty array — never creates a new reference */

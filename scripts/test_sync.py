@@ -66,6 +66,11 @@ def test_section_clash_adds_program():
     assert [(e["section"], e["program"]) for e in exams] == [("1", "Aşçılık"), ("1", "Aşçılık (İ.Ö)")]
 
 
+def test_sections_with_same_start_but_different_end_get_unique_ids():
+    exams, _ = build(row(section=2, end="12:00"), row(section=4, end="11:00"))
+    assert len({e["id"] for e in exams}) == 2
+
+
 def test_same_group_in_two_slots_keeps_earliest_only():
     exams, stats = build(row(start="10:00", end="18:00", rooms="B"), row(start="09:00", end="10:00", rooms="A"))
     assert [(e["start"], e["rooms"]) for e in exams] == [("09:00", ["A"])]
