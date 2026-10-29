@@ -2,18 +2,18 @@
 
 import { Check, ChevronDown, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Course } from "@/lib/api";
+import type { Exam } from "@/lib/api";
+import { sessionLabel } from "@/lib/exam";
 import type { Translations } from "@/lib/i18n";
 
 interface CourseSelectorProps {
-  courses: Course[];
-  selected: Course[];
-  onChange: React.Dispatch<React.SetStateAction<Course[]>>;
+  exams: Exam[];
+  selected: Exam[];
+  onChange: React.Dispatch<React.SetStateAction<Exam[]>>;
   isLoading?: boolean;
   t: Translations;
 }
 
-/** Build a lowercase acronym from the first letter of each word. */
 function buildAcronym(name: string): string {
   return name
     .split(/\s+/)
@@ -22,23 +22,18 @@ function buildAcronym(name: string): string {
     .toLowerCase();
 }
 
-/** Check if a course matches the search query by label, code, name, acronym, or word prefixes. */
-function matchesCourse(course: Course, q: string): boolean {
+function matchesCourse(course: Exam, q: string): boolean {
   const lower = q.toLowerCase();
 
-  // Substring match on label, code, search_code (ASCII-transliterated), or full name
   if (
-    course.label.toLowerCase().includes(lower) ||
     course.code.toLowerCase().includes(lower) ||
     course.search_code.toLowerCase().includes(lower) ||
     course.name.toLowerCase().includes(lower)
   )
     return true;
 
-  // Acronym match
   if (buildAcronym(course.name) === lower) return true;
 
-  // Multi-word prefix match — each query word must prefix a word in the course name
   const queryTokens = lower.split(/\s+/).filter(Boolean);
   if (queryTokens.length > 1) {
     const nameWords = course.name.toLowerCase().split(/\s+/);
@@ -47,7 +42,6 @@ function matchesCourse(course: Course, q: string): boolean {
     );
   }
 
-  // Single-word prefix match
   return course.name
     .toLowerCase()
     .split(/\s+/)
@@ -55,7 +49,7 @@ function matchesCourse(course: Course, q: string): boolean {
 }
 
 export default function CourseSelector({
-  courses,
+  exams: courses,
   selected,
   onChange,
   isLoading = false,
@@ -79,8 +73,8 @@ export default function CourseSelector({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
-  const selectedLabels = useMemo(
-    () => new Set(selected.map((c) => c.label)),
+  const selectedIds = useMemo(
+    () => new Set(selected.map((c) => c.id)),
     [selected],
   );
 
@@ -90,17 +84,16 @@ export default function CourseSelector({
   }, [courses, query]);
 
   const toggle = useCallback(
-    (course: Course) => {
+    (course: Exam) => {
       onChange((prev) => {
-        const exists = prev.some((c) => c.label === course.label);
+        const exists = prev.some((c) => c.id === course.id);
         return exists
-          ? prev.filter((c) => c.label !== course.label)
+          ? prev.filter((c) => c.id !== course.id)
           : [...prev, course];
       });
 
-      // Clear search query after toggling so the placeholder reappears
       setQuery("");
-      // Blur input on touch devices to dismiss the mobile keyboard
+      // dismiss the mobile keyboard
       if ("ontouchstart" in window) {
         inputRef.current?.blur();
       }
@@ -109,8 +102,8 @@ export default function CourseSelector({
   );
 
   const removeChip = useCallback(
-    (label: string) => {
-      onChange((prev) => prev.filter((c) => c.label !== label));
+    (id: string) => {
+      onChange((prev) => prev.filter((c) => c.id !== id));
     },
     [onChange],
   );
@@ -122,7 +115,6 @@ export default function CourseSelector({
         toggle(filtered[0]);
       }
     } else if (e.key === "Backspace" && query === "" && selected.length > 0) {
-      // Remove the last selected course when backspace is pressed on empty input
       onChange((prev) => prev.slice(0, -1));
     } else if (e.key === "Escape") {
       setOpen(false);
@@ -132,7 +124,6 @@ export default function CourseSelector({
 
   return (
     <div ref={containerRef} className="relative w-full">
-      {/* Trigger — chip-aware input bar */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: mouse-only shortcut, the input inside is keyboard-focusable */}
       <div
         className="flex min-h-11 w-full cursor-text items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
@@ -143,19 +134,18 @@ export default function CourseSelector({
       >
         <Search className="h-4 w-4 shrink-0 text-zinc-400" />
 
-        {/* Chips + input in a wrapping row */}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
           {selected.map((c) => (
             <span
-              key={c.label}
+              key={c.id}
               className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
             >
-              {c.code.toUpperCase()}
+              {[c.code, sessionLabel(c, t.section)].filter(Boolean).join(" · ")}
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  removeChip(c.label);
+                  removeChip(c.id);
                 }}
                 className="ml-0.5 rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-500/25"
               >
@@ -209,10 +199,8 @@ export default function CourseSelector({
         />
       </div>
 
-      {/* Dropdown — plain show/hide, no animation */}
       {open && (
         <div className="absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
-          {/* Selected count + clear */}
           {selected.length > 0 && (
             <div className="flex items-center justify-between border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
               <span className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -228,7 +216,6 @@ export default function CourseSelector({
             </div>
           )}
 
-          {/* Enter hint */}
           {query && filtered.length > 0 && (
             <div className="border-b border-zinc-100 px-3 py-1.5 dark:border-zinc-800">
               <span className="text-[11px] text-zinc-400">
@@ -240,7 +227,6 @@ export default function CourseSelector({
             </div>
           )}
 
-          {/* Option list */}
           <ul className="max-h-60 overflow-y-auto py-1">
             {isLoading && (
               <li className="px-3 py-6 text-center text-sm text-zinc-400">
@@ -256,9 +242,10 @@ export default function CourseSelector({
 
             {!isLoading &&
               filtered.map((course) => {
-                const isSelected = selectedLabels.has(course.label);
+                const isSelected = selectedIds.has(course.id);
+                const session = sessionLabel(course, t.section);
                 return (
-                  <li key={course.label}>
+                  <li key={course.id}>
                     <button
                       type="button"
                       onClick={() => toggle(course)}
@@ -279,8 +266,13 @@ export default function CourseSelector({
                       </div>
                       <div className="min-w-0 truncate">
                         <span className="font-semibold text-zinc-800 dark:text-zinc-100">
-                          {course.code.toUpperCase()}
+                          {course.code}
                         </span>
+                        {session && (
+                          <span className="ml-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                            {session}
+                          </span>
+                        )}
                         <span className="ml-1.5 text-zinc-500 dark:text-zinc-400">
                           {course.name}
                         </span>

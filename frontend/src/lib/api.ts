@@ -1,94 +1,22 @@
-/**
- * API client for the Haliç Exam Genius backend.
- *
- * Provides typed fetch helpers for courses, schedules, and ICS export.
- * Base URL defaults to `http://localhost:8000` and can be overridden
- * via the `NEXT_PUBLIC_API_URL` environment variable.
- */
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-// ── Types ────────────────────────────────────────────────────────────────────
-
-/** A single course entry from the backend. */
-export interface Course {
+// Times are Istanbul wall clock exactly as the Excel states them; never convert time zones.
+export interface Exam {
+  id: string;
   code: string;
   name: string;
   search_code: string;
-  label: string;
+  date: string;
+  start: string;
+  end: string;
+  rooms: string[];
+  section?: string;
+  program?: string;
 }
 
-/** Response shape for the `GET /api/courses` endpoint. */
-export interface CoursesResponse {
-  total: number;
-  courses: Course[];
-}
-
-/** Exam information for a single course. */
-export interface ExamDetail {
-  id: string;
-  course_name: string;
-  exam_date: string;
-  classrooms: string[];
-}
-
-/** Response shape for the `POST /api/schedule` endpoint. */
-export interface ScheduleResponse {
-  schedule: ExamDetail[];
-}
-
-export type Language = "tr" | "en";
-
-// ── Fetchers ─────────────────────────────────────────────────────────────────
-
-/** Fetch all available courses from the backend. */
-export async function fetchCourses(): Promise<CoursesResponse> {
-  const res = await fetch(`${API_BASE}/api/courses`);
+export async function fetchExams(): Promise<Exam[]> {
+  const res = await fetch("/data/exams.json");
   if (!res.ok) {
-    throw new Error(`Failed to fetch courses (${res.status})`);
+    throw new Error(`Failed to load exams (${res.status})`);
   }
-  return res.json();
-}
-
-/** Fetch the exam schedule for the given course labels. */
-export async function fetchSchedule(
-  courses: string[],
-  language: Language = "tr",
-  includeClassroom = true,
-): Promise<ScheduleResponse> {
-  const res = await fetch(`${API_BASE}/api/schedule`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      courses,
-      language,
-      include_classroom: includeClassroom,
-    }),
-  });
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(body?.detail ?? `Failed to fetch schedule (${res.status})`);
-  }
-  return res.json();
-}
-
-/** Export an ICS calendar file blob for the given courses. */
-export async function exportICS(
-  courses: string[],
-  language: Language = "tr",
-  examType: "midterm" | "final" = "final",
-): Promise<Blob> {
-  const res = await fetch(`${API_BASE}/api/export/ics`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      courses,
-      language,
-      exam_type: examType,
-    }),
-  });
-  if (!res.ok) {
-    throw new Error(`Failed to export ICS (${res.status})`);
-  }
-  return res.blob();
+  const data: { exams: Exam[] } = await res.json();
+  return data.exams;
 }

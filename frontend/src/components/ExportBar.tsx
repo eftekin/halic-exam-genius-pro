@@ -3,19 +3,17 @@
 import { toPng } from "html-to-image";
 import { CalendarPlus, Download, Share2 } from "lucide-react";
 import { type RefObject, useState } from "react";
-import type { ExamDetail } from "@/lib/api";
+import type { Exam } from "@/lib/api";
 import { generateMultiICS } from "@/lib/calendar";
 import type { Translations } from "@/lib/i18n";
 
 interface ExportBarProps {
-  courseLabels: string[];
-  exams: ExamDetail[];
+  exams: Exam[];
   scheduleRef: RefObject<HTMLDivElement | null>;
   t: Translations;
   disabled?: boolean;
 }
 
-/** Capture the ExportView DOM node as a PNG blob using html-to-image. */
 async function captureScheduleImage(node: HTMLElement): Promise<Blob> {
   const dataUrl = await toPng(node, {
     pixelRatio: 2,
@@ -31,7 +29,6 @@ async function captureScheduleImage(node: HTMLElement): Promise<Blob> {
 }
 
 export default function ExportBar({
-  courseLabels,
   exams,
   scheduleRef,
   t,
@@ -96,14 +93,13 @@ export default function ExportBar({
     }
   }
 
-  const isDisabled = disabled || courseLabels.length === 0;
+  const isDisabled = disabled || exams.length === 0;
 
   if (isDisabled) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
       <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 pt-3 pb-safe">
-        {/* ICS */}
         <button
           type="button"
           onClick={handleICS}
@@ -114,7 +110,6 @@ export default function ExportBar({
           {icsLoading ? t.generating : t.add_all_to_calendar(exams.length)}
         </button>
 
-        {/* PNG */}
         <button
           type="button"
           onClick={handleShare}
