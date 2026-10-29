@@ -1,26 +1,26 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
 import { GraduationCap } from "lucide-react";
-import {
-  fetchCourses,
-  fetchSchedule,
-  type Course,
-  type ExamDetail,
-} from "@/lib/api";
-import { useLanguage } from "@/lib/i18n";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CourseSelector from "@/components/CourseSelector";
 import ExamCard, { ExamCardSkeleton } from "@/components/ExamCard";
-import { EmptyState, ErrorState } from "@/components/States";
 import ExportBar from "@/components/ExportBar";
 import ExportView from "@/components/ExportView";
+import { EmptyState, ErrorState } from "@/components/States";
 import {
   ACADEMIC_YEAR,
-  SEMESTER_TR,
-  SEMESTER_EN,
-  EXAM_TYPE_TR,
   EXAM_TYPE_EN,
+  EXAM_TYPE_TR,
+  SEMESTER_EN,
+  SEMESTER_TR,
 } from "@/config/constants";
+import {
+  type Course,
+  type ExamDetail,
+  fetchCourses,
+  fetchSchedule,
+} from "@/lib/api";
+import { useLanguage } from "@/lib/i18n";
 
 /* Stable empty array — never creates a new reference */
 const EMPTY_SCHEDULE: ExamDetail[] = [];

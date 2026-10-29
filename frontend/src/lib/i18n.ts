@@ -7,15 +7,15 @@
  * that auto-detects the browser locale on mount.
  */
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  EXAM_TYPE_TR,
-  EXAM_TYPE_EN,
-  UNIVERSITY_NAME_TR,
-  UNIVERSITY_NAME_EN,
   ACADEMIC_YEAR,
-  SEMESTER_TR,
+  EXAM_TYPE_EN,
+  EXAM_TYPE_TR,
   SEMESTER_EN,
+  SEMESTER_TR,
+  UNIVERSITY_NAME_EN,
+  UNIVERSITY_NAME_TR,
 } from "@/config/constants";
 
 // ── Supported languages ──────────────────────────────────────────────────────

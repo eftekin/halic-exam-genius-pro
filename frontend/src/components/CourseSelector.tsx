@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { Search, X, ChevronDown, Check } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Course } from "@/lib/api";
 import type { Translations } from "@/lib/i18n";
 
