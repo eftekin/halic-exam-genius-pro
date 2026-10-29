@@ -11,7 +11,7 @@ def row(
     code="AAA101",
     name="Course",
     date="2025-11-14 Cuma",
-    start="09:00",
+    start: str | dt.time = "09:00",
     end="10:00",
     section=1,
     program="Prog",

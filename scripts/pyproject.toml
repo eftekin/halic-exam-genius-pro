@@ -19,3 +19,7 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["sync"]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
