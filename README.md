@@ -65,14 +65,13 @@ npm run dev        # http://localhost:3000
 
 When a new exam schedule is announced:
 
-1. Download the "tüm liste" Excel from the announcement on [halic.edu.tr](https://halic.edu.tr).
-2. Generate the data:
-   ```bash
-   cd scripts
-   uv run sync.py ~/Downloads/<file>.xlsx
-   ```
-3. Update the semester and exam type in `frontend/src/config/constants.ts`.
-4. Open a pull request.
+1. Put the "tüm liste" Excel link from the announcement on [halic.edu.tr](https://halic.edu.tr) into `scripts/source.url`.
+2. Update the semester and exam type in `frontend/src/config/constants.ts`.
+3. Open a pull request. CI downloads and parses the file and shows a summary (exam count, date range) so you can check it is the right one.
+
+After merge, the sync workflow regenerates `exams.json` on `main`. It also runs every hour, so later edits to the same Excel are picked up. If the file can't be parsed, nothing is written and the last good data stays live.
+
+To run it locally: `cd scripts && uv run sync.py` (or pass a downloaded file: `uv run sync.py <file>.xlsx`).
 
 ---
 
@@ -100,9 +99,10 @@ halic-exam-genius-pro/
 │       ├── config/constants.ts  # semester and exam type labels
 │       └── lib/                 # data loading, dates, ICS, i18n
 ├── scripts/
+│   ├── source.url               # Excel link of the current exam period
 │   ├── sync.py                  # Excel → exams.json
 │   └── test_sync.py
-└── .github/workflows/ci.yml
+└── .github/workflows/        # ci.yml, sync-data.yml
 ```
 
 ---

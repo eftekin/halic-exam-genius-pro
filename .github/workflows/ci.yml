@@ -45,3 +45,5 @@ jobs:
       - run: uv run --locked pytest -q
         env:
           TZ: UTC
+      # same command the sync bot runs after merge, without committing
+      - run: uv run --locked sync.py --out "$RUNNER_TEMP/exams.json" >> "$GITHUB_STEP_SUMMARY"

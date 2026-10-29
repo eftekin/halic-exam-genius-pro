@@ -1,0 +1,45 @@
+name: Sync exam data
+
+on:
+  push:
+    branches: [main]
+    paths: [scripts/source.url]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-data
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv run --locked pytest -q
+        working-directory: scripts
+        env:
+          TZ: UTC
+      - run: uv run --locked sync.py >> "$GITHUB_STEP_SUMMARY"
+        working-directory: scripts
+      - name: Commit if changed
+        run: |
+          git add frontend/public/data/exams.json
+          git diff --cached --quiet && exit 0
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "data: sync exam schedule"
+          git push
+
+  # scheduled workflows are disabled after 60 days without repo activity (summer break)
+  keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1

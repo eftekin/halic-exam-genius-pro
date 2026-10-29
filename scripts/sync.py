@@ -27,6 +27,7 @@ REQUIRED = [DATE, START, END, CODE, NAME, SECTION, PROGRAM, ROOMS]
 ALIASES = {"DERSLİK KODLARI": ROOMS}  # 2023-24 and 2024 spring files
 MIN_EXAMS = 100
 DEFAULT_OUT = Path(__file__).resolve().parent.parent / "frontend" / "public" / "data" / "exams.json"
+SOURCE_FILE = Path(__file__).resolve().parent / "source.url"
 ASCII = str.maketrans("ÇĞİÖŞÜçğıöşü", "CGIOSUcgiosu")
 
 
@@ -186,8 +187,11 @@ def load(source: str) -> pd.DataFrame:
         req = urllib.request.Request(
             source, headers={"User-Agent": "halic-exam-genius-sync (+https://github.com/eftekin/halic-exam-genius-pro)"}
         )
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            data = resp.read()
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = resp.read()
+        except OSError as exc:  # URLError, HTTPError and timeouts
+            raise SyncError(f"cannot download {source}: {exc}") from exc
     else:
         data = Path(source).read_bytes()
     try:
@@ -218,17 +222,21 @@ def write_if_changed(out: Path, exams: list[dict], source: str) -> bool:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Build exams.json from the exam Excel")
-    ap.add_argument("source", help="xlsx URL or local path")
+    ap.add_argument("source", nargs="?", help=f"xlsx URL or local path (default: {SOURCE_FILE.name})")
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     args = ap.parse_args(argv)
+    src = args.source or SOURCE_FILE.read_text(encoding="utf-8").strip()
     try:
-        exams, stats = build_exams(load(args.source))
+        exams, stats = build_exams(load(src))
     except SyncError as exc:
         print(f"sync failed: {exc}", file=sys.stderr)
         return 1
-    source = args.source if args.source.startswith("http") else Path(args.source).name
+    source = src if src.startswith("http") else Path(src).name
     changed = write_if_changed(args.out, exams, source)
-    print(("updated" if changed else "unchanged"), dict(stats))
+    print(f"**{'updated' if changed else 'unchanged'}**: {source}\n")
+    print(f"- {stats['exams']} exams, {stats['courses']} courses")
+    print(f"- {exams[0]['date']} → {exams[-1]['date']}")
+    print(f"- {stats['multi_session_courses']} multi-session courses, {stats['hidden_later_slots']} later slots hidden")
     return 0
 
 

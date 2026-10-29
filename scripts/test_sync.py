@@ -135,3 +135,9 @@ def test_bad_file_writes_nothing(tmp_path):
     out = tmp_path / "exams.json"
     assert sync.main([str(bad), "--out", str(out)]) == 1
     assert not out.exists()
+
+
+def test_download_failure_is_a_clean_error(tmp_path):
+    out = tmp_path / "exams.json"
+    assert sync.main(["http://127.0.0.1:9/missing.xlsx", "--out", str(out)]) == 1
+    assert not out.exists()
