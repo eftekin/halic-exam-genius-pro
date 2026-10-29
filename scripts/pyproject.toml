@@ -1,0 +1,12 @@
+[project]
+name = "halic-exam-sync"
+version = "0.1.0"
+description = "Turn the university exam Excel into frontend/public/data/exams.json"
+requires-python = ">=3.12"
+dependencies = ["openpyxl>=3.1", "pandas>=2.2"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+package = false
