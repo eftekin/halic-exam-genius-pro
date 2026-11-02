@@ -1,17 +1,29 @@
 @import "tailwindcss";
 
-/* ── Design Tokens ────────────────────────────────────────────────── */
 :root {
   --background: #ffffff;
-  --foreground: #18181b;
-  --border: #e4e4e7;
+  --foreground: #14151a;
+  --border: #dfe1ea;
+  --muted: #5b5e6b;
+  --bubble: #a9afd6;
+  --brand: #001bc3;
+  --on-brand: #ffffff;
+  --danger: #b4231f;
+  --pencil: #262833;
+  color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #09090b;
-    --foreground: #e4e4e7;
-    --border: #27272a;
+    --background: #0b0c13;
+    --foreground: #eceef5;
+    --border: #2a2c3a;
+    --muted: #a6aabd;
+    --bubble: #555a7a;
+    --brand: #aab4f5;
+    --on-brand: #0b0c13;
+    --danger: #ff9b92;
+    --pencil: #dfe2ef;
   }
 }
 
@@ -19,18 +31,15 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-border: var(--border);
-  --color-brand-50: #eef0fc;
-  --color-brand-100: #dde1fa;
-  --color-brand-300: #aab4f5;
-  --color-brand-400: #8c99f0;
-  --color-brand-500: #2239d4;
-  --color-brand-600: #001bc3;
-  --color-brand-700: #00159b;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-bubble: var(--bubble);
+  --color-brand: var(--brand);
+  --color-on-brand: var(--on-brand);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
 }
 
-/* ── Base ─────────────────────────────────────────────────────────── */
 html {
   overflow-y: scroll;
   -webkit-tap-highlight-color: transparent;
@@ -70,11 +79,6 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4d4d8;
+  background: var(--bubble);
   border-radius: 9999px;
-}
-@media (prefers-color-scheme: dark) {
-  ::-webkit-scrollbar-thumb {
-    background: #3f3f46;
-  }
 }

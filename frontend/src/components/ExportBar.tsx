@@ -98,13 +98,13 @@ export default function ExportBar({
   if (isDisabled) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 pt-3 pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 z-30 bg-background">
+      <div className="mx-auto flex max-w-2xl items-center gap-2 border-t-2 border-brand px-4 pt-2.5 pb-safe">
         <button
           type="button"
           onClick={handleICS}
           disabled={isDisabled || icsLoading}
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+          className="flex h-[46px] flex-1 items-center justify-center gap-2 rounded-[3px] bg-brand text-[15px] font-semibold text-on-brand disabled:opacity-40"
         >
           <CalendarPlus className="h-4 w-4" />
           {icsLoading ? t.generating : t.add_all_to_calendar(exams.length)}
@@ -114,11 +114,12 @@ export default function ExportBar({
           type="button"
           onClick={handleShare}
           disabled={isDisabled || shareLoading}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-600 disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+          aria-label={t.share_tooltip}
+          className="flex size-[46px] shrink-0 items-center justify-center rounded-[3px] border border-brand bg-background text-brand disabled:opacity-40"
           title={t.share_tooltip}
         >
           {shareLoading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600" />
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-bubble border-t-brand" />
           ) : typeof navigator !== "undefined" &&
             typeof navigator.share === "function" ? (
             <Share2 className="h-4 w-4" />

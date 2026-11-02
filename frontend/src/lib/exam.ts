@@ -7,11 +7,57 @@ export function formatDate(date: string): string {
 }
 
 // Pinned to UTC so the device time zone can't shift the day.
-export function weekday(date: string, lang: Lang): string {
+function formatPart(
+  date: string,
+  lang: Lang,
+  part: Intl.DateTimeFormatOptions,
+): string {
   return new Intl.DateTimeFormat(lang === "tr" ? "tr-TR" : "en-US", {
-    weekday: "long",
+    ...part,
     timeZone: "UTC",
   }).format(new Date(`${date}T00:00:00Z`));
+}
+
+export function weekday(date: string, lang: Lang): string {
+  return formatPart(date, lang, { weekday: "long" });
+}
+
+export function weekdayShort(date: string, lang: Lang): string {
+  return formatPart(date, lang, { weekday: "short" });
+}
+
+export function dayOfMonth(date: string): number {
+  return Number(date.slice(8));
+}
+
+function monthName(date: string, lang: Lang): string {
+  return formatPart(date, lang, { month: "long" });
+}
+
+export function dayLabel(date: string, lang: Lang): string {
+  return `${weekday(date, lang)}, ${dayOfMonth(date)} ${monthName(date, lang)}`;
+}
+
+export function examDays(exams: Exam[]): string[] {
+  return [...new Set(exams.map((e) => e.date))].sort();
+}
+
+export function periodLabel(days: string[], lang: Lang): string {
+  const first = days[0];
+  const last = days[days.length - 1];
+  const lastLabel = `${dayOfMonth(last)} ${monthName(last, lang)}`;
+  if (first === last) return lastLabel;
+  return first.slice(0, 7) === last.slice(0, 7)
+    ? `${dayOfMonth(first)}-${lastLabel}`
+    : `${dayOfMonth(first)} ${monthName(first, lang)}-${lastLabel}`;
+}
+
+export function groupByDay(sorted: Exam[]): { date: string; exams: Exam[] }[] {
+  const days = new Map<string, Exam[]>();
+  for (const exam of sorted) {
+    days.set(exam.date, [...(days.get(exam.date) ?? []), exam]);
+  }
+  return [...days].map(([date, exams]) => ({ date, exams }));
 }
 
 export function sessionLabel(exam: Exam, sectionWord: string): string {

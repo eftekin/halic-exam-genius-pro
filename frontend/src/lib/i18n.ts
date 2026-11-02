@@ -30,8 +30,12 @@ const translations = {
     subtitle: `${UNIVERSITY_NAME_TR} Sınav Programı`,
 
     // CourseSelector
-    search_placeholder: "Ders ara ve seç...",
-    search_placeholder_open: "Ders kodu veya adı ile ara...",
+    courses_label: "Dersler",
+    search_placeholder: "Ders ara ve seç",
+    search_placeholder_open: "Ders kodu veya adı ile ara",
+    remove_course: (course: string) => `${course} kaldır`,
+    toggle_list: "Ders listesini aç veya kapat",
+    clear_search: "Aramayı temizle",
     courses_selected: (n: number) => `${n} ders seçildi`,
     clear_all: "Tümünü Kaldır",
     enter_hint: (code: string) => `ile "${code}" seç/kaldır`,
@@ -40,8 +44,8 @@ const translations = {
 
     // Schedule
     exams_listed: (n: number) => `${n} sınav listelendi`,
-    exam_type: EXAM_TYPE_TR,
     section: "Şube",
+    room: "Derslik",
 
     // ExportBar
     add_all_to_calendar: (n: number) => `Tümünü Takvime Ekle (${n})`,
@@ -54,9 +58,9 @@ const translations = {
     share_tooltip: "Paylaş / PNG İndir",
 
     // States
-    empty_title: "Sınav Programını Görüntüle",
-    empty_desc:
-      "Yukarıdaki arama kutusundan derslerini seç ve sınav programını anında oluştur.",
+    exam_period: `${EXAM_TYPE_TR} dönemi`,
+    period_summary: (sessions: number, days: number) =>
+      `${sessions.toLocaleString("tr-TR")} sınav oturumu · ${days} gün`,
     error_title: "Bir Sorun Oluştu",
     retry: "Tekrar Dene",
     courses_load_error: "Dersler yüklenemedi",
@@ -74,8 +78,12 @@ const translations = {
   en: {
     subtitle: `${UNIVERSITY_NAME_EN} Exam Schedule`,
 
-    search_placeholder: "Search and select courses...",
-    search_placeholder_open: "Search by course code or name...",
+    courses_label: "Courses",
+    search_placeholder: "Search and select courses",
+    search_placeholder_open: "Search by course code or name",
+    remove_course: (course: string) => `Remove ${course}`,
+    toggle_list: "Open or close the course list",
+    clear_search: "Clear search",
     courses_selected: (n: number) => `${n} courses selected`,
     clear_all: "Clear All",
     enter_hint: (code: string) => `to select/remove "${code}"`,
@@ -83,8 +91,8 @@ const translations = {
     no_results: "No results found",
 
     exams_listed: (n: number) => `${n} exams listed`,
-    exam_type: EXAM_TYPE_EN,
     section: "Section",
+    room: "Room",
 
     add_all_to_calendar: (n: number) => `Add All to Calendar (${n})`,
     generating: "Generating...",
@@ -95,9 +103,9 @@ const translations = {
     share_error: "Could not generate image.",
     share_tooltip: "Share / Download PNG",
 
-    empty_title: "View Exam Schedule",
-    empty_desc:
-      "Select your courses from the search bar above to instantly generate your exam schedule.",
+    exam_period: `${EXAM_TYPE_EN} period`,
+    period_summary: (sessions: number, days: number) =>
+      `${sessions.toLocaleString("en-US")} exam sessions · ${days} days`,
     error_title: "Something Went Wrong",
     retry: "Retry",
     courses_load_error: "Could not load courses",
