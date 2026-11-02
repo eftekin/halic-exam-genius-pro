@@ -24,7 +24,10 @@ import pandas as pd
 DATE, START, END = "SINAV GÜNÜ", "BAŞLANGIÇ SAATİ", "BİTİŞ SAATİ"
 CODE, NAME, SECTION, PROGRAM, ROOMS = "DERS KODU", "DERS ADI", "ŞUBE", "PROGRAM ADI", "DERSLİK/ODA KODLARI"
 REQUIRED = [DATE, START, END, CODE, NAME, SECTION, PROGRAM, ROOMS]
-ALIASES = {"DERSLİK KODLARI": ROOMS}  # 2023-24 and 2024 spring files
+ALIASES = {
+    "DERSLİK KODLARI": ROOMS,  # 2023-24 and 2024 spring files
+    "DERS AÇILAN ŞUBE": SECTION,  # 2026-27 fall midterm file
+}
 MIN_EXAMS = 100
 DEFAULT_OUT = Path(__file__).resolve().parent.parent / "frontend" / "public" / "data" / "exams.json"
 SOURCE_FILE = Path(__file__).resolve().parent / "source.url"
