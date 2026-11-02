@@ -2,6 +2,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { SITE_URL } from "@/config/constants";
 import "./globals.css";
 
 const plexSans = IBM_Plex_Sans({
@@ -24,9 +25,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Haliç Exam Genius | Haliç Üniversitesi Sınav Programı Oluşturucu",
   description:
-    "A specialized tool for 3000+ students to generate, export, and manage their final exam schedules instantly.",
+    "Haliç Üniversitesi öğrencileri için sınav programı: derslerini seç, tarih, saat ve derslikleri gör, takvimine ekle.",
   keywords: [
     "halic exam genius",
     "haliç üniversitesi sınav programı",
@@ -43,8 +45,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Haliç Exam Genius | Haliç Üniversitesi Sınav Programı Oluşturucu",
     description:
-      "A specialized tool for 3000+ students to generate, export, and manage their final exam schedules instantly.",
-    url: "https://halicexamgenius.com/",
+      "Haliç Üniversitesi öğrencileri için sınav programı: derslerini seç, tarih, saat ve derslikleri gör, takvimine ekle.",
+    url: SITE_URL,
     siteName: "Haliç Exam Genius",
     images: [
       {
@@ -61,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Haliç Exam Genius | Haliç Üniversitesi Sınav Programı Oluşturucu",
     description:
-      "A specialized tool for 3000+ students to generate, export, and manage their final exam schedules instantly.",
+      "Haliç Üniversitesi öğrencileri için sınav programı: derslerini seç, tarih, saat ve derslikleri gör, takvimine ekle.",
     images: ["/og-image.png"],
   },
 };
@@ -72,7 +74,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="tr">
       <body className={`${plexSans.variable} ${plexMono.variable} antialiased`}>
         {children}
         <Analytics />

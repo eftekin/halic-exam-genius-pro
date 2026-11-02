@@ -94,7 +94,7 @@ export default function Home() {
               href={REPO_URL}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Star on GitHub"
+              aria-label={t.star_on_github}
               className="inline-flex min-h-11 shrink-0 items-center gap-1.5 px-1 text-[13px] font-semibold text-muted hover:text-brand md:text-sm"
             >
               <GitHubIcon className="h-4 w-4" />
@@ -161,7 +161,13 @@ export default function Home() {
         </footer>
       </div>
 
-      <ExportView ref={exportRef} exams={schedule} t={t} lang={lang} />
+      <ExportView
+        ref={exportRef}
+        exams={schedule}
+        days={days}
+        t={t}
+        lang={lang}
+      />
 
       <ExportBar
         exams={schedule}

@@ -28,6 +28,15 @@ async function captureScheduleImage(node: HTMLElement): Promise<Blob> {
   return res.blob();
 }
 
+function saveFile(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function ExportBar({
   exams,
   scheduleRef,
@@ -45,12 +54,7 @@ export default function ExportBar({
       const blob = new Blob([icsContent], {
         type: "text/calendar;charset=utf-8",
       });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "sinav_programi.ics";
-      a.click();
-      URL.revokeObjectURL(url);
+      saveFile(blob, t.ics_filename);
     } catch {
       alert(t.calendar_error);
     } finally {
@@ -63,31 +67,27 @@ export default function ExportBar({
     setShareLoading(true);
     try {
       const blob = await captureScheduleImage(scheduleRef.current);
-      const file = new File([blob], "exam_schedule.png", {
-        type: "image/png",
-      });
+      const file = new File([blob], t.image_filename, { type: "image/png" });
 
       if (
         typeof navigator.share === "function" &&
         navigator.canShare?.({ files: [file] })
       ) {
-        await navigator.share({
-          title: t.share_title,
-          text: t.share_text,
-          files: [file],
-        });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "exam_schedule.png";
-        a.click();
-        URL.revokeObjectURL(url);
+        try {
+          await navigator.share({
+            title: t.share_title,
+            text: t.share_text,
+            files: [file],
+          });
+          return;
+        } catch (err) {
+          // Other rejections (Safari after a slow capture) fall back to a download.
+          if ((err as DOMException)?.name === "AbortError") return;
+        }
       }
-    } catch (err) {
-      if ((err as DOMException)?.name !== "AbortError") {
-        alert(t.share_error);
-      }
+      saveFile(blob, t.image_filename);
+    } catch {
+      alert(t.share_error);
     } finally {
       setShareLoading(false);
     }
@@ -96,6 +96,8 @@ export default function ExportBar({
   const isDisabled = disabled || exams.length === 0;
 
   if (isDisabled) return null;
+
+  const canShare = typeof navigator.share === "function";
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 bg-background">
@@ -114,18 +116,17 @@ export default function ExportBar({
           type="button"
           onClick={handleShare}
           disabled={isDisabled || shareLoading}
-          aria-label={t.share_tooltip}
-          className="flex size-[46px] shrink-0 items-center justify-center rounded-[3px] border border-brand bg-background text-brand disabled:opacity-40"
+          className="flex h-[46px] shrink-0 items-center justify-center gap-2 rounded-[3px] border border-brand bg-background px-4 text-[15px] font-semibold text-brand disabled:opacity-40"
           title={t.share_tooltip}
         >
           {shareLoading ? (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-bubble border-t-brand" />
-          ) : typeof navigator !== "undefined" &&
-            typeof navigator.share === "function" ? (
+          ) : canShare ? (
             <Share2 className="h-4 w-4" />
           ) : (
             <Download className="h-4 w-4" />
           )}
+          {canShare ? t.share : t.download}
         </button>
       </div>
     </div>

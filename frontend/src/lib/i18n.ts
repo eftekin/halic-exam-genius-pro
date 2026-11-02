@@ -14,6 +14,7 @@ import {
   EXAM_TYPE_TR,
   SEMESTER_EN,
   SEMESTER_TR,
+  SITE_URL,
   UNIVERSITY_NAME_EN,
   UNIVERSITY_NAME_TR,
 } from "@/config/constants";
@@ -51,11 +52,15 @@ const translations = {
     add_all_to_calendar: (n: number) => `Tümünü Takvime Ekle (${n})`,
     generating: "Oluşturuluyor...",
     calendar_error: "Takvim dosyası oluşturulamadı.",
+    share: "Paylaş",
+    download: "İndir",
+    ics_filename: "sinav_programi.ics",
+    image_filename: "sinav_programi.png",
     share_title: "Sınav Programım",
-    share_text:
-      "İşte sınav programım! Haliç Exam Genius ile oluşturuldu: https://halicexamgenius.app/",
+    share_text: `Sınav programım, Haliç Exam Genius ile hazırlandı: ${SITE_URL}`,
     share_error: "Görsel oluşturulamadı.",
-    share_tooltip: "Paylaş / PNG İndir",
+    share_tooltip: "Görsel olarak paylaş veya indir",
+    unofficial: "Üniversitenin resmi sitesi değildir",
 
     // States
     exam_period: `${EXAM_TYPE_TR} dönemi`,
@@ -73,6 +78,7 @@ const translations = {
     // Footer
     footer: "Haliç Exam Genius",
     update_on_github: "Program güncel değil mi? GitHub'da güncelle",
+    star_on_github: "GitHub'da yıldızla",
   },
 
   en: {
@@ -97,11 +103,15 @@ const translations = {
     add_all_to_calendar: (n: number) => `Add All to Calendar (${n})`,
     generating: "Generating...",
     calendar_error: "Could not generate calendar file.",
+    share: "Share",
+    download: "Download",
+    ics_filename: "exam_schedule.ics",
+    image_filename: "exam_schedule.png",
     share_title: "My Exam Schedule",
-    share_text:
-      "Here's my exam schedule! Created with Haliç Exam Genius: https://halicexamgenius.app/",
+    share_text: `My exam schedule, made with Haliç Exam Genius: ${SITE_URL}`,
     share_error: "Could not generate image.",
-    share_tooltip: "Share / Download PNG",
+    share_tooltip: "Share or download as an image",
+    unofficial: "Not an official university site",
 
     exam_period: `${EXAM_TYPE_EN} period`,
     period_summary: (sessions: number, days: number) =>
@@ -116,6 +126,7 @@ const translations = {
 
     footer: "Haliç Exam Genius",
     update_on_github: "Schedule out of date? Update it on GitHub",
+    star_on_github: "Star on GitHub",
   },
 } as const;
 
