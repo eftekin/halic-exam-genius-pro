@@ -110,6 +110,14 @@ def test_old_room_column_name_is_accepted():
     assert exams[0]["rooms"] == ["101"]
 
 
+def test_new_section_column_name_is_accepted():
+    df = pd.DataFrame([row(code=f"C{i:03}") for i in range(sync.MIN_EXAMS)]).rename(
+        columns={sync.SECTION: "DERS AÇILAN ŞUBE"}
+    )
+    exams, _ = sync.build_exams(df)
+    assert len(exams) == sync.MIN_EXAMS
+
+
 def test_too_few_exams_fails():
     with pytest.raises(sync.SyncError, match="expected at least"):
         sync.build_exams(pd.DataFrame([row()]))
