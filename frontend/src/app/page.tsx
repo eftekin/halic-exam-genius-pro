@@ -108,8 +108,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* pb-28 reserves space for the fixed export bar */}
-      <main className="flex-1 px-4 pb-28 pt-4">
+      <main className="flex-1 px-4 pt-4">
         {!hasSchedule && <EmptyState t={t} />}
 
         {hasSchedule && (
@@ -138,22 +137,25 @@ export default function Home() {
             </div>
           </>
         )}
-
-        <footer className="mt-10 pb-4 text-center text-[11px] text-zinc-400 dark:text-zinc-600">
-          <a
-            href={UPDATE_SCHEDULE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mb-2 inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
-          >
-            <GitHubIcon className="h-3.5 w-3.5" />
-            {t.update_on_github}
-          </a>
-          <div>
-            {t.footer} &copy; {new Date().getFullYear()}
-          </div>
-        </footer>
       </main>
+
+      {/* pb-28 reserves space for the fixed export bar */}
+      <footer
+        className={`mt-10 px-4 text-center text-[11px] text-zinc-400 dark:text-zinc-600 ${hasSchedule ? "pb-28" : "pb-4"}`}
+      >
+        <a
+          href={UPDATE_SCHEDULE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-2 inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+        >
+          <GitHubIcon className="h-3.5 w-3.5" />
+          {t.update_on_github}
+        </a>
+        <div>
+          {t.footer} &copy; {new Date().getFullYear()}
+        </div>
+      </footer>
 
       <ExportView ref={exportRef} exams={schedule} t={t} lang={lang} />
 
