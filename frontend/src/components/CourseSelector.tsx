@@ -93,7 +93,6 @@ export default function CourseSelector({
     } else if (e.key === "Backspace" && query === "" && selected.length > 0) {
       onChange((prev) => prev.slice(0, -1));
     } else if (e.key === "Escape") {
-      setOpen(false);
       inputRef.current?.blur();
     }
   }

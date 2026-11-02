@@ -90,13 +90,14 @@ const translations = {
     remove_course: (course: string) => `Remove ${course}`,
     toggle_list: "Open or close the course list",
     clear_search: "Clear search",
-    courses_selected: (n: number) => `${n} courses selected`,
+    courses_selected: (n: number) =>
+      `${n} ${n === 1 ? "course" : "courses"} selected`,
     clear_all: "Clear All",
     enter_hint: (code: string) => `to select/remove "${code}"`,
     loading_courses: "Loading courses...",
     no_results: "No results found",
 
-    exams_listed: (n: number) => `${n} exams listed`,
+    exams_listed: (n: number) => `${n} ${n === 1 ? "exam" : "exams"} listed`,
     section: "Section",
     room: (n: number) => (n > 1 ? "Rooms" : "Room"),
 
@@ -157,7 +158,9 @@ export function useLanguage() {
   const [lang, setLangState] = useState<Lang>("tr");
 
   useEffect(() => {
-    setLangState(detectLang());
+    const detected = detectLang();
+    setLangState(detected);
+    document.documentElement.lang = detected;
   }, []);
 
   const setLang = useCallback((l: Lang) => setLangState(l), []);

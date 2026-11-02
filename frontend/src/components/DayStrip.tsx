@@ -1,3 +1,4 @@
+import ShadedBubble from "@/components/ShadedBubble";
 import { dayOfMonth, weekdayShort } from "@/lib/exam";
 import type { Lang } from "@/lib/i18n";
 
@@ -8,7 +9,7 @@ interface DayStripProps {
   lang: Lang;
 }
 
-/** Every exam day as a printed bubble row; days with a selected exam are solid. */
+/** Every exam day as a printed bubble row; days with a selected exam are filled in. */
 export default function DayStrip({ days, marked, label, lang }: DayStripProps) {
   return (
     <div
@@ -28,11 +29,14 @@ export default function DayStrip({ days, marked, label, lang }: DayStripProps) {
             >
               {dayOfMonth(day)}
             </div>
-            <span
-              className={`mx-auto mt-[3px] block size-7 rounded-full md:mt-1 md:size-[34px] ${
-                isMarked ? "bg-foreground" : "border border-bubble"
-              }`}
-            />
+            {isMarked ? (
+              <ShadedBubble
+                seed={dayOfMonth(day)}
+                className="mx-auto mt-[3px] block size-7 md:mt-1 md:size-[34px]"
+              />
+            ) : (
+              <span className="mx-auto mt-[3px] block size-7 rounded-full border border-bubble md:mt-1 md:size-[34px]" />
+            )}
           </div>
         );
       })}

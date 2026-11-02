@@ -29,11 +29,8 @@ async function captureScheduleImage(node: HTMLElement): Promise<Blob> {
 }
 
 // Phones share; a mouse and keyboard computer just downloads the image.
-function usesShareSheet() {
-  return (
-    typeof navigator.share === "function" &&
-    window.matchMedia("(pointer: coarse)").matches
-  );
+function isPhone() {
+  return window.matchMedia("(hover: none), (pointer: coarse)").matches;
 }
 
 function saveFile(blob: Blob, filename: string) {
@@ -77,7 +74,7 @@ export default function ExportBar({
       const blob = await captureScheduleImage(scheduleRef.current);
       const file = new File([blob], t.image_filename, { type: "image/png" });
 
-      if (usesShareSheet() && navigator.canShare?.({ files: [file] })) {
+      if (isPhone() && navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({
             title: t.share_title,
@@ -86,7 +83,7 @@ export default function ExportBar({
           });
           return;
         } catch (err) {
-          // Other rejections (Safari after a slow capture) fall back to a download.
+          // Any other rejection still gets the user the image.
           if ((err as DOMException)?.name === "AbortError") return;
         }
       }
@@ -102,7 +99,7 @@ export default function ExportBar({
 
   if (isDisabled) return null;
 
-  const canShare = usesShareSheet();
+  const phone = isPhone();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 bg-background">
@@ -126,12 +123,12 @@ export default function ExportBar({
         >
           {shareLoading ? (
             <div className="h-4 w-4 animate-spin rounded-full border-2 border-bubble border-t-brand" />
-          ) : canShare ? (
+          ) : phone ? (
             <Share2 className="h-4 w-4" />
           ) : (
             <Download className="h-4 w-4" />
           )}
-          {canShare ? t.share : t.download}
+          {phone ? t.share : t.download}
         </button>
       </div>
     </div>

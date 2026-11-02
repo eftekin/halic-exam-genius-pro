@@ -29,7 +29,7 @@ Pick your courses, see every exam's date, time and room, and export the schedule
 | **Sections** | Courses whose sections sit exams at different times are listed per section; program name is added when sections share a number. |
 | **Exact times** | Dates and times are shown exactly as the university's Excel states them (Istanbul time), whatever the device time zone. |
 | **Calendar export** | One `.ics` file with every selected exam (iOS, Android, Google, Outlook). |
-| **Image export** | Schedule as a PNG, shared through the Web Share API where available. |
+| **Image export** | Schedule as a PNG, shared on phones and downloaded on desktop. |
 | **Bilingual** | Turkish and English, picked from the browser language. |
 | **Exam days** | A strip of the exam period, read from the data, with your exam days filled in. |
 
