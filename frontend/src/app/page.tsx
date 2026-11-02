@@ -70,7 +70,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-2xl flex-col bg-background">
-      <header className="relative top-0 z-40 border-b-2 border-brand bg-background [@media(min-height:500px)]:sticky">
+      <header className="relative top-0 z-40 border-b-2 border-brand bg-background [@media(min-height:620px)]:sticky">
         <div className="flex flex-col gap-3 px-4 pb-3.5 pt-safe">
           <div className="flex items-center gap-2.5">
             <Image
@@ -114,22 +114,26 @@ export default function Home() {
               t={t}
             />
           )}
-        </div>
-      </header>
 
-      <main className="flex-1 px-4 pt-3.5">
-        {!hasSchedule && !error && (
-          <EmptyState days={days} sessions={exams.length} lang={lang} t={t} />
-        )}
-
-        {hasSchedule && (
-          <div className="flex flex-col gap-3">
+          {hasSchedule && (
             <DayStrip
               days={days}
               marked={markedDays}
               label={`${t.exam_period}, ${periodLabel(days, lang)}`}
               lang={lang}
             />
+          )}
+        </div>
+      </header>
+
+      {/* Bottom padding keeps the last exam clear of the fixed bottom bar */}
+      <main className={`flex-1 px-4 pt-3.5 ${hasSchedule ? "pb-36" : "pb-20"}`}>
+        {!hasSchedule && !error && (
+          <EmptyState days={days} sessions={exams.length} lang={lang} t={t} />
+        )}
+
+        {hasSchedule && (
+          <div className="flex flex-col gap-3">
             {groups.map((group) => (
               <section key={group.date}>
                 <h2 className="border-b border-foreground pb-1 pt-1.5 text-[13px] font-bold md:text-sm">
@@ -144,23 +148,6 @@ export default function Home() {
         )}
       </main>
 
-      {/* pb-24 reserves space for the fixed export bar */}
-      <div className={`mt-10 px-4 ${hasSchedule ? "pb-24" : "pb-4"}`}>
-        <footer className="flex flex-col gap-1 border-t border-border pt-3 text-[12.5px] text-muted md:flex-row md:justify-between md:gap-5 md:text-[13px]">
-          <a
-            href={UPDATE_SCHEDULE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-brand"
-          >
-            {t.update_on_github}
-          </a>
-          <span>
-            {t.footer} &copy; {new Date().getFullYear()}
-          </span>
-        </footer>
-      </div>
-
       <ExportView
         ref={exportRef}
         exams={schedule}
@@ -169,12 +156,33 @@ export default function Home() {
         lang={lang}
       />
 
-      <ExportBar
-        exams={schedule}
-        scheduleRef={exportRef}
-        t={t}
-        disabled={!hasSchedule}
-      />
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-background">
+        <div
+          className={`mx-auto flex max-w-2xl flex-col gap-2 px-4 pt-2.5 pb-safe ${
+            hasSchedule ? "border-t-2 border-brand" : "border-t border-border"
+          }`}
+        >
+          <ExportBar
+            exams={schedule}
+            scheduleRef={exportRef}
+            t={t}
+            disabled={!hasSchedule}
+          />
+          <footer className="flex flex-wrap justify-center gap-x-5 gap-y-0.5 text-center text-[11.5px] text-muted md:text-[12.5px]">
+            <a
+              href={UPDATE_SCHEDULE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-brand"
+            >
+              {t.update_on_github}
+            </a>
+            <span>
+              {t.footer} &copy; {new Date().getFullYear()}
+            </span>
+          </footer>
+        </div>
+      </div>
     </div>
   );
 }

@@ -28,9 +28,11 @@ async function captureScheduleImage(node: HTMLElement): Promise<Blob> {
   return res.blob();
 }
 
-// Phones share; a mouse and keyboard computer just downloads the image.
-function isPhone() {
-  return window.matchMedia("(hover: none), (pointer: coarse)").matches;
+// Same rule as the `desktop` variant in globals.css, which picks the button label.
+function isDesktop() {
+  return window.matchMedia(
+    "(hover: hover) and (pointer: fine) and (min-width: 768px)",
+  ).matches;
 }
 
 function saveFile(blob: Blob, filename: string) {
@@ -74,7 +76,7 @@ export default function ExportBar({
       const blob = await captureScheduleImage(scheduleRef.current);
       const file = new File([blob], t.image_filename, { type: "image/png" });
 
-      if (isPhone() && navigator.canShare?.({ files: [file] })) {
+      if (!isDesktop() && navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({
             title: t.share_title,
@@ -99,38 +101,37 @@ export default function ExportBar({
 
   if (isDisabled) return null;
 
-  const phone = isPhone();
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 bg-background">
-      <div className="mx-auto flex max-w-2xl items-center gap-2 border-t-2 border-brand px-4 pt-2.5 pb-safe">
-        <button
-          type="button"
-          onClick={handleICS}
-          disabled={isDisabled || icsLoading}
-          className="flex h-[46px] flex-1 items-center justify-center gap-2 rounded-[3px] bg-brand text-[15px] font-semibold text-on-brand disabled:opacity-40"
-        >
-          <CalendarPlus className="h-4 w-4" />
-          {icsLoading ? t.generating : t.add_all_to_calendar(exams.length)}
-        </button>
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={handleICS}
+        disabled={isDisabled || icsLoading}
+        className="flex h-[46px] min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-[3px] bg-brand text-[15px] font-semibold text-on-brand disabled:opacity-40 max-[360px]:text-sm"
+      >
+        <CalendarPlus className="h-4 w-4 max-[360px]:hidden" />
+        {icsLoading ? t.generating : t.add_all_to_calendar(exams.length)}
+      </button>
 
-        <button
-          type="button"
-          onClick={handleShare}
-          disabled={isDisabled || shareLoading}
-          className="flex h-[46px] shrink-0 items-center justify-center gap-2 rounded-[3px] border border-brand bg-background px-4 text-[15px] font-semibold text-brand disabled:opacity-40"
-          title={t.share_tooltip}
-        >
-          {shareLoading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-bubble border-t-brand" />
-          ) : phone ? (
-            <Share2 className="h-4 w-4" />
-          ) : (
-            <Download className="h-4 w-4" />
-          )}
-          {phone ? t.share : t.download}
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={handleShare}
+        disabled={isDisabled || shareLoading}
+        className="flex h-[46px] shrink-0 items-center justify-center gap-2 rounded-[3px] border border-brand bg-background px-4 text-[15px] font-semibold text-brand disabled:opacity-40"
+        title={t.share_tooltip}
+      >
+        {shareLoading && (
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-bubble border-t-brand" />
+        )}
+        <span className="inline-flex items-center gap-2 desktop:hidden">
+          {!shareLoading && <Share2 className="h-4 w-4" />}
+          {t.share}
+        </span>
+        <span className="hidden items-center gap-2 desktop:inline-flex">
+          {!shareLoading && <Download className="h-4 w-4" />}
+          {t.download}
+        </span>
+      </button>
     </div>
   );
 }
