@@ -10,21 +10,7 @@
   --on-brand: #ffffff;
   --danger: #b4231f;
   --pencil: #262833;
-  color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b0c13;
-    --foreground: #eceef5;
-    --border: #2a2c3a;
-    --muted: #a6aabd;
-    --bubble: #555a7a;
-    --brand: #aab4f5;
-    --on-brand: #0b0c13;
-    --danger: #ff9b92;
-    --pencil: #dfe2ef;
-  }
+  color-scheme: light;
 }
 
 @theme inline {

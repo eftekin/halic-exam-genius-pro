@@ -32,7 +32,6 @@ Pick your courses, see every exam's date, time and room, and export the schedule
 | **Image export** | Schedule as a PNG, shared through the Web Share API where available. |
 | **Bilingual** | Turkish and English, picked from the browser language. |
 | **Exam days** | A strip of the exam period, read from the data, with your exam days filled in. |
-| **Dark mode** | Follows the system setting. |
 
 ---
 
@@ -42,7 +41,7 @@ The site looks like a printed optical answer sheet. The logo spells an H with fi
 
 - **Color:** Haliç blue `#001BC3`, taken from the university's logo.
 - **Type:** IBM Plex Sans and IBM Plex Mono.
-- **Tokens:** Light and dark colors live in `frontend/src/app/globals.css`.
+- **Theme:** Light only, like the paper it copies. Colors live in `frontend/src/app/globals.css`.
 
 ---
 
