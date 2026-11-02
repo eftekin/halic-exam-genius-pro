@@ -1,7 +1,6 @@
 "use client";
 
 import { forwardRef } from "react";
-import ShadedBubble from "@/components/ShadedBubble";
 import {
   ACADEMIC_YEAR,
   EXAM_TYPE_EN,
@@ -136,28 +135,17 @@ const ExportView = forwardRef<HTMLDivElement, ExportViewProps>(
               >
                 {dayOfMonth(day)}
               </div>
-              {marked.has(day) ? (
-                <ShadedBubble
-                  seed={dayOfMonth(day)}
-                  style={{
-                    display: "block",
-                    width: 30,
-                    height: 30,
-                    margin: "4px auto 0",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    boxSizing: "border-box",
-                    width: 30,
-                    height: 30,
-                    margin: "4px auto 0",
-                    borderRadius: "50%",
-                    border: `1px solid ${BUBBLE}`,
-                  }}
-                />
-              )}
+              <div
+                style={{
+                  boxSizing: "border-box",
+                  width: 30,
+                  height: 30,
+                  margin: "4px auto 0",
+                  borderRadius: "50%",
+                  backgroundColor: marked.has(day) ? INK : "transparent",
+                  border: marked.has(day) ? "none" : `1px solid ${BUBBLE}`,
+                }}
+              />
             </div>
           ))}
         </div>
