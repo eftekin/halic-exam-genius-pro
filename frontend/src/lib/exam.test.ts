@@ -10,6 +10,7 @@ import {
   examDays,
   formatDate,
   groupByDay,
+  matchesCourse,
   periodLabel,
   sessionLabel,
   weekday,
@@ -40,6 +41,38 @@ test("day labels stay on the calendar date in both languages", () => {
   assert.equal(dayLabel("2026-11-07", "en"), "Saturday, 7 November");
   assert.equal(weekdayShort("2026-11-07", "tr"), "Cmt");
   assert.equal(weekdayShort("2026-11-07", "en"), "Sat");
+});
+
+test("search ignores Turkish letters and case", () => {
+  const course = exam({
+    code: "HLÜ0101",
+    search_code: "hlu0101",
+    name: "Mesleki İngilizce I",
+  });
+  for (const q of [
+    "ingilizce",
+    "İNGİLİZCE",
+    "INGILIZCE",
+    "ingılızce",
+    "hlü",
+    "hlu",
+    "mesl ing",
+    "mii",
+  ]) {
+    assert.equal(matchesCourse(course, q), true, q);
+  }
+  assert.equal(matchesCourse(course, "matematik"), false);
+  assert.equal(
+    matchesCourse(
+      exam({ name: "İşletme Çevre Mühendisliği" }),
+      "isletme cevre",
+    ),
+    true,
+  );
+  assert.equal(
+    matchesCourse(exam({ name: "İşletme Çevre Mühendisliği" }), "muhendislik"),
+    false,
+  );
 });
 
 test("exam days are unique, sorted and label the period", () => {

@@ -68,6 +68,34 @@ export function sessionLabel(exam: Exam, sectionWord: string): string {
     .join(" · ");
 }
 
+// Plain toLowerCase turns İ into i + a combining dot, so "ingilizce" would never match.
+function foldForSearch(text: string): string {
+  return text
+    .toLocaleLowerCase("tr")
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/ı/g, "i");
+}
+
+export function matchesCourse(course: Exam, query: string): boolean {
+  const q = foldForSearch(query);
+  const name = foldForSearch(course.name);
+  const words = name.split(/\s+/);
+
+  if (
+    foldForSearch(course.code).includes(q) ||
+    foldForSearch(course.search_code).includes(q) ||
+    name.includes(q) ||
+    words.map((w) => w[0] ?? "").join("") === q
+  )
+    return true;
+
+  return q
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((token) => words.some((w) => w.startsWith(token)));
+}
+
 export function compareExams(a: Exam, b: Exam): number {
   return (
     `${a.date} ${a.start}`.localeCompare(`${b.date} ${b.start}`) ||

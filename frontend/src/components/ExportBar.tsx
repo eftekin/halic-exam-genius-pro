@@ -28,6 +28,14 @@ async function captureScheduleImage(node: HTMLElement): Promise<Blob> {
   return res.blob();
 }
 
+// Phones share; a mouse and keyboard computer just downloads the image.
+function usesShareSheet() {
+  return (
+    typeof navigator.share === "function" &&
+    window.matchMedia("(pointer: coarse)").matches
+  );
+}
+
 function saveFile(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -69,10 +77,7 @@ export default function ExportBar({
       const blob = await captureScheduleImage(scheduleRef.current);
       const file = new File([blob], t.image_filename, { type: "image/png" });
 
-      if (
-        typeof navigator.share === "function" &&
-        navigator.canShare?.({ files: [file] })
-      ) {
+      if (usesShareSheet() && navigator.canShare?.({ files: [file] })) {
         try {
           await navigator.share({
             title: t.share_title,
@@ -97,7 +102,7 @@ export default function ExportBar({
 
   if (isDisabled) return null;
 
-  const canShare = typeof navigator.share === "function";
+  const canShare = usesShareSheet();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 bg-background">

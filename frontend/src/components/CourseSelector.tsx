@@ -4,7 +4,7 @@ import { ChevronDown, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import PencilBubble from "@/components/PencilBubble";
 import type { Exam } from "@/lib/api";
-import { sessionLabel } from "@/lib/exam";
+import { matchesCourse, sessionLabel } from "@/lib/exam";
 import type { Translations } from "@/lib/i18n";
 
 interface CourseSelectorProps {
@@ -13,40 +13,6 @@ interface CourseSelectorProps {
   onChange: React.Dispatch<React.SetStateAction<Exam[]>>;
   isLoading?: boolean;
   t: Translations;
-}
-
-function buildAcronym(name: string): string {
-  return name
-    .split(/\s+/)
-    .map((w) => w[0] ?? "")
-    .join("")
-    .toLowerCase();
-}
-
-function matchesCourse(course: Exam, q: string): boolean {
-  const lower = q.toLowerCase();
-
-  if (
-    course.code.toLowerCase().includes(lower) ||
-    course.search_code.toLowerCase().includes(lower) ||
-    course.name.toLowerCase().includes(lower)
-  )
-    return true;
-
-  if (buildAcronym(course.name) === lower) return true;
-
-  const queryTokens = lower.split(/\s+/).filter(Boolean);
-  if (queryTokens.length > 1) {
-    const nameWords = course.name.toLowerCase().split(/\s+/);
-    return queryTokens.every((token) =>
-      nameWords.some((w) => w.startsWith(token)),
-    );
-  }
-
-  return course.name
-    .toLowerCase()
-    .split(/\s+/)
-    .some((w) => w.startsWith(lower));
 }
 
 export default function CourseSelector({
@@ -70,8 +36,15 @@ export default function CourseSelector({
         setOpen(false);
       }
     }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, []);
 
   const selectedIds = useMemo(
@@ -97,6 +70,8 @@ export default function CourseSelector({
       // dismiss the mobile keyboard
       if ("ontouchstart" in window) {
         inputRef.current?.blur();
+      } else {
+        inputRef.current?.focus();
       }
     },
     [onChange],
