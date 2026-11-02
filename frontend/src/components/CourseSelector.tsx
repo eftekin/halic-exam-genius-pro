@@ -138,7 +138,7 @@ export default function CourseSelector({
           {selected.map((c) => (
             <span
               key={c.id}
-              className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
+              className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-brand-50 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-500/15 dark:text-brand-300"
             >
               {[c.code, sessionLabel(c, t.section)].filter(Boolean).join(" · ")}
               <button
@@ -147,7 +147,7 @@ export default function CourseSelector({
                   e.stopPropagation();
                   removeChip(c.id);
                 }}
-                className="ml-0.5 rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-500/25"
+                className="ml-0.5 rounded-full p-0.5 hover:bg-brand-100 dark:hover:bg-brand-500/25"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -250,13 +250,13 @@ export default function CourseSelector({
                       type="button"
                       onClick={() => toggle(course)}
                       className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm ${
-                        isSelected ? "bg-indigo-50 dark:bg-indigo-500/10" : ""
+                        isSelected ? "bg-brand-50 dark:bg-brand-500/10" : ""
                       }`}
                     >
                       <div
                         className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
                           isSelected
-                            ? "border-indigo-500 bg-indigo-500 text-white"
+                            ? "border-brand-500 bg-brand-500 text-white"
                             : "border-zinc-300 bg-white dark:border-zinc-600 dark:bg-zinc-900"
                         }`}
                       >
@@ -269,7 +269,7 @@ export default function CourseSelector({
                           {course.code}
                         </span>
                         {session && (
-                          <span className="ml-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                          <span className="ml-1.5 text-xs font-medium text-brand-600 dark:text-brand-400">
                             {session}
                           </span>
                         )}

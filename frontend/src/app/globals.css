@@ -19,6 +19,13 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-border: var(--border);
+  --color-brand-50: #eef0fc;
+  --color-brand-100: #dde1fa;
+  --color-brand-300: #aab4f5;
+  --color-brand-400: #8c99f0;
+  --color-brand-500: #2239d4;
+  --color-brand-600: #001bc3;
+  --color-brand-700: #00159b;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

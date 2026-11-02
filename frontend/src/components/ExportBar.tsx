@@ -104,7 +104,7 @@ export default function ExportBar({
           type="button"
           onClick={handleICS}
           disabled={isDisabled || icsLoading}
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
         >
           <CalendarPlus className="h-4 w-4" />
           {icsLoading ? t.generating : t.add_all_to_calendar(exams.length)}

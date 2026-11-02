@@ -41,7 +41,7 @@ const ExamCard = memo(function ExamCard({
             </p>
           )}
         </div>
-        <span className="shrink-0 rounded bg-indigo-50 px-2 py-0.5 text-[11px] font-semibold text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
+        <span className="shrink-0 rounded bg-brand-50 px-2 py-0.5 text-[11px] font-semibold text-brand-600 dark:bg-brand-500/15 dark:text-brand-300">
           {t.exam_type}
         </span>
       </div>

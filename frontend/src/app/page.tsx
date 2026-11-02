@@ -1,6 +1,7 @@
 "use client";
 
-import { GraduationCap, Star } from "lucide-react";
+import { Star } from "lucide-react";
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CourseSelector from "@/components/CourseSelector";
 import ExamCard from "@/components/ExamCard";
@@ -60,16 +61,20 @@ export default function Home() {
       <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/80 backdrop-blur-lg dark:border-zinc-800 dark:bg-zinc-950/80">
         <div className="px-4 pb-4 pt-safe">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 shadow-lg shadow-indigo-500/20">
-              <GraduationCap className="h-5 w-5 text-white" />
-            </div>
+            <Image
+              src="/favicon.svg"
+              alt=""
+              width={40}
+              height={40}
+              className="shrink-0"
+            />
 
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
                 <h1 className="text-2xl font-bold tracking-tight text-zinc-900 md:text-3xl dark:text-zinc-50">
                   Exam Genius
                 </h1>
-                <span className="inline-flex items-center rounded-md border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                <span className="inline-flex items-center rounded-md border border-brand-500/20 bg-brand-500/10 px-2.5 py-0.5 text-xs font-semibold text-brand-600 dark:text-brand-400">
                   {ACADEMIC_YEAR} {lang === "tr" ? SEMESTER_TR : SEMESTER_EN} |{" "}
                   {lang === "tr" ? EXAM_TYPE_TR : EXAM_TYPE_EN}
                 </span>
@@ -113,7 +118,7 @@ export default function Home() {
 
         {hasSchedule && (
           <>
-            <div className="mb-4 rounded-xl border border-indigo-500/15 bg-linear-to-r from-indigo-500/5 via-indigo-500/10 to-indigo-500/5 px-4 py-3 dark:border-indigo-500/20">
+            <div className="mb-4 rounded-xl border border-brand-500/15 bg-linear-to-r from-brand-500/5 via-brand-500/10 to-brand-500/5 px-4 py-3 dark:border-brand-500/20">
               <h2 className="text-lg font-bold tracking-tight text-zinc-900 md:text-xl dark:text-zinc-50">
                 {ACADEMIC_YEAR} {lang === "tr" ? SEMESTER_TR : SEMESTER_EN}
                 {" | "}
