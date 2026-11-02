@@ -28,6 +28,20 @@ async function captureScheduleImage(node: HTMLElement): Promise<Blob> {
   return res.blob();
 }
 
+// Phones share; a mouse and keyboard computer just downloads the image.
+function isPhone() {
+  return window.matchMedia("(hover: none), (pointer: coarse)").matches;
+}
+
+function saveFile(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function ExportBar({
   exams,
   scheduleRef,
@@ -45,12 +59,7 @@ export default function ExportBar({
       const blob = new Blob([icsContent], {
         type: "text/calendar;charset=utf-8",
       });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "sinav_programi.ics";
-      a.click();
-      URL.revokeObjectURL(url);
+      saveFile(blob, t.ics_filename);
     } catch {
       alert(t.calendar_error);
     } finally {
@@ -63,31 +72,24 @@ export default function ExportBar({
     setShareLoading(true);
     try {
       const blob = await captureScheduleImage(scheduleRef.current);
-      const file = new File([blob], "exam_schedule.png", {
-        type: "image/png",
-      });
+      const file = new File([blob], t.image_filename, { type: "image/png" });
 
-      if (
-        typeof navigator.share === "function" &&
-        navigator.canShare?.({ files: [file] })
-      ) {
-        await navigator.share({
-          title: t.share_title,
-          text: t.share_text,
-          files: [file],
-        });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "exam_schedule.png";
-        a.click();
-        URL.revokeObjectURL(url);
+      if (isPhone() && navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: t.share_title,
+            text: t.share_text,
+            files: [file],
+          });
+          return;
+        } catch (err) {
+          // Any other rejection still gets the user the image.
+          if ((err as DOMException)?.name === "AbortError") return;
+        }
       }
-    } catch (err) {
-      if ((err as DOMException)?.name !== "AbortError") {
-        alert(t.share_error);
-      }
+      saveFile(blob, t.image_filename);
+    } catch {
+      alert(t.share_error);
     } finally {
       setShareLoading(false);
     }
@@ -97,14 +99,16 @@ export default function ExportBar({
 
   if (isDisabled) return null;
 
+  const phone = isPhone();
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 pt-3 pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 z-30 bg-background">
+      <div className="mx-auto flex max-w-2xl items-center gap-2 border-t-2 border-brand px-4 pt-2.5 pb-safe">
         <button
           type="button"
           onClick={handleICS}
           disabled={isDisabled || icsLoading}
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+          className="flex h-[46px] flex-1 items-center justify-center gap-2 rounded-[3px] bg-brand text-[15px] font-semibold text-on-brand disabled:opacity-40"
         >
           <CalendarPlus className="h-4 w-4" />
           {icsLoading ? t.generating : t.add_all_to_calendar(exams.length)}
@@ -114,17 +118,17 @@ export default function ExportBar({
           type="button"
           onClick={handleShare}
           disabled={isDisabled || shareLoading}
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-600 disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300"
+          className="flex h-[46px] shrink-0 items-center justify-center gap-2 rounded-[3px] border border-brand bg-background px-4 text-[15px] font-semibold text-brand disabled:opacity-40"
           title={t.share_tooltip}
         >
           {shareLoading ? (
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-600" />
-          ) : typeof navigator !== "undefined" &&
-            typeof navigator.share === "function" ? (
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-bubble border-t-brand" />
+          ) : phone ? (
             <Share2 className="h-4 w-4" />
           ) : (
             <Download className="h-4 w-4" />
           )}
+          {phone ? t.share : t.download}
         </button>
       </div>
     </div>

@@ -1,9 +1,10 @@
 "use client";
 
-import { Check, ChevronDown, Search, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import PencilBubble from "@/components/PencilBubble";
 import type { Exam } from "@/lib/api";
-import { sessionLabel } from "@/lib/exam";
+import { matchesCourse, sessionLabel } from "@/lib/exam";
 import type { Translations } from "@/lib/i18n";
 
 interface CourseSelectorProps {
@@ -12,40 +13,6 @@ interface CourseSelectorProps {
   onChange: React.Dispatch<React.SetStateAction<Exam[]>>;
   isLoading?: boolean;
   t: Translations;
-}
-
-function buildAcronym(name: string): string {
-  return name
-    .split(/\s+/)
-    .map((w) => w[0] ?? "")
-    .join("")
-    .toLowerCase();
-}
-
-function matchesCourse(course: Exam, q: string): boolean {
-  const lower = q.toLowerCase();
-
-  if (
-    course.code.toLowerCase().includes(lower) ||
-    course.search_code.toLowerCase().includes(lower) ||
-    course.name.toLowerCase().includes(lower)
-  )
-    return true;
-
-  if (buildAcronym(course.name) === lower) return true;
-
-  const queryTokens = lower.split(/\s+/).filter(Boolean);
-  if (queryTokens.length > 1) {
-    const nameWords = course.name.toLowerCase().split(/\s+/);
-    return queryTokens.every((token) =>
-      nameWords.some((w) => w.startsWith(token)),
-    );
-  }
-
-  return course.name
-    .toLowerCase()
-    .split(/\s+/)
-    .some((w) => w.startsWith(lower));
 }
 
 export default function CourseSelector({
@@ -69,8 +36,15 @@ export default function CourseSelector({
         setOpen(false);
       }
     }
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
     document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, []);
 
   const selectedIds = useMemo(
@@ -96,6 +70,8 @@ export default function CourseSelector({
       // dismiss the mobile keyboard
       if ("ontouchstart" in window) {
         inputRef.current?.blur();
+      } else {
+        inputRef.current?.focus();
       }
     },
     [onChange],
@@ -111,179 +87,163 @@ export default function CourseSelector({
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (filtered.length > 0) {
+      if (query.trim() && filtered.length > 0) {
         toggle(filtered[0]);
       }
     } else if (e.key === "Backspace" && query === "" && selected.length > 0) {
       onChange((prev) => prev.slice(0, -1));
     } else if (e.key === "Escape") {
-      setOpen(false);
       inputRef.current?.blur();
     }
   }
 
   return (
-    <div ref={containerRef} className="relative w-full">
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents lint/a11y/noStaticElementInteractions: mouse-only shortcut, the input inside is keyboard-focusable */}
-      <div
-        className="flex min-h-11 w-full cursor-text items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 dark:border-zinc-700 dark:bg-zinc-900"
-        onClick={() => {
-          if (!open) setOpen(true);
-          inputRef.current?.focus();
-        }}
+    <div ref={containerRef} className="flex w-full flex-col gap-2">
+      <label
+        htmlFor="course-search"
+        className="text-xs font-semibold md:text-[12.5px]"
       >
-        <Search className="h-4 w-4 shrink-0 text-zinc-400" />
+        {t.courses_label}
+      </label>
 
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-          {selected.map((c) => (
-            <span
-              key={c.id}
-              className="inline-flex shrink-0 items-center gap-0.5 rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
-            >
-              {[c.code, sessionLabel(c, t.section)].filter(Boolean).join(" · ")}
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 font-mono text-xs font-medium md:text-[12.5px]">
+          {selected.map((c) => {
+            const label = [c.code, sessionLabel(c, t.section)]
+              .filter(Boolean)
+              .join(" · ");
+            return (
               <button
+                key={c.id}
                 type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeChip(c.id);
-                }}
-                className="ml-0.5 rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-500/25"
+                onClick={() => removeChip(c.id)}
+                aria-label={t.remove_course(label)}
+                className="inline-flex items-center gap-1 rounded-[3px] border border-brand bg-background px-[7px] py-[5px] text-brand"
               >
+                {label}
                 <X className="h-3 w-3" />
               </button>
-            </span>
-          ))}
-
-          <input
-            ref={inputRef}
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              if (!open) setOpen(true);
-            }}
-            onFocus={() => {
-              if (!open) setOpen(true);
-            }}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              selected.length === 0
-                ? open
-                  ? t.search_placeholder_open
-                  : t.search_placeholder
-                : open
-                  ? t.search_placeholder_open
-                  : ""
-            }
-            className="min-w-20 flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-            autoComplete="off"
-            spellCheck={false}
-          />
-        </div>
-
-        {query && (
-          <button
-            type="button"
-            onClick={() => setQuery("")}
-            className="shrink-0 rounded p-0.5 text-zinc-400"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        )}
-
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-zinc-400 ${open ? "rotate-180" : ""}`}
-          onClick={(e) => {
-            e.stopPropagation();
-            setOpen((prev) => !prev);
-          }}
-        />
-      </div>
-
-      {open && (
-        <div className="absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
-          {selected.length > 0 && (
-            <div className="flex items-center justify-between border-b border-zinc-100 px-3 py-2 dark:border-zinc-800">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                {t.courses_selected(selected.length)}
-              </span>
-              <button
-                type="button"
-                onClick={() => onChange([])}
-                className="text-xs font-medium text-red-500"
-              >
-                {t.clear_all}
-              </button>
-            </div>
-          )}
-
-          {query && filtered.length > 0 && (
-            <div className="border-b border-zinc-100 px-3 py-1.5 dark:border-zinc-800">
-              <span className="text-[11px] text-zinc-400">
-                <kbd className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[10px] dark:bg-zinc-800">
-                  Enter
-                </kbd>{" "}
-                {t.enter_hint(filtered[0].code.toUpperCase())}
-              </span>
-            </div>
-          )}
-
-          <ul className="max-h-60 overflow-y-auto py-1">
-            {isLoading && (
-              <li className="px-3 py-6 text-center text-sm text-zinc-400">
-                {t.loading_courses}
-              </li>
-            )}
-
-            {!isLoading && filtered.length === 0 && (
-              <li className="px-3 py-6 text-center text-sm text-zinc-400">
-                {t.no_results}
-              </li>
-            )}
-
-            {!isLoading &&
-              filtered.map((course) => {
-                const isSelected = selectedIds.has(course.id);
-                const session = sessionLabel(course, t.section);
-                return (
-                  <li key={course.id}>
-                    <button
-                      type="button"
-                      onClick={() => toggle(course)}
-                      className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm ${
-                        isSelected ? "bg-indigo-50 dark:bg-indigo-500/10" : ""
-                      }`}
-                    >
-                      <div
-                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
-                          isSelected
-                            ? "border-indigo-500 bg-indigo-500 text-white"
-                            : "border-zinc-300 bg-white dark:border-zinc-600 dark:bg-zinc-900"
-                        }`}
-                      >
-                        {isSelected && (
-                          <Check className="h-3 w-3" strokeWidth={3} />
-                        )}
-                      </div>
-                      <div className="min-w-0 truncate">
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-100">
-                          {course.code}
-                        </span>
-                        {session && (
-                          <span className="ml-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400">
-                            {session}
-                          </span>
-                        )}
-                        <span className="ml-1.5 text-zinc-500 dark:text-zinc-400">
-                          {course.name}
-                        </span>
-                      </div>
-                    </button>
-                  </li>
-                );
-              })}
-          </ul>
+            );
+          })}
         </div>
       )}
+
+      <div className="relative">
+        <input
+          id="course-search"
+          ref={inputRef}
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            if (!open) setOpen(true);
+          }}
+          onClick={() => {
+            if (!open) setOpen(true);
+          }}
+          onFocus={() => {
+            if (!open) setOpen(true);
+          }}
+          onKeyDown={handleKeyDown}
+          placeholder={open ? t.search_placeholder_open : t.search_placeholder}
+          className="h-11 w-full rounded-[3px] border border-foreground bg-background pl-3 pr-20 text-base font-medium outline-none placeholder:font-normal placeholder:text-muted focus:border-2 focus:border-brand focus:pl-[11px] md:text-[15px]"
+          autoComplete="off"
+          spellCheck={false}
+        />
+
+        <div className="absolute inset-y-0 right-0 flex items-center">
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label={t.clear_search}
+              className="flex size-9 items-center justify-center text-muted"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setOpen((prev) => !prev)}
+            aria-label={t.toggle_list}
+            aria-expanded={open}
+            className="flex size-9 items-center justify-center text-muted"
+          >
+            <ChevronDown className={`h-4 w-4 ${open ? "rotate-180" : ""}`} />
+          </button>
+        </div>
+
+        {open && (
+          <div className="absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-[3px] border border-foreground bg-background shadow-md">
+            {selected.length > 0 && (
+              <div className="flex items-center justify-between border-b border-foreground px-3 py-1">
+                <span className="font-mono text-xs font-medium">
+                  {t.courses_selected(selected.length)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onChange([])}
+                  className="min-h-8 text-[13px] font-semibold text-danger"
+                >
+                  {t.clear_all}
+                </button>
+              </div>
+            )}
+
+            {query && filtered.length > 0 && (
+              <div className="border-b border-border px-3 py-1.5 text-[11px] text-muted">
+                <kbd className="font-mono font-medium">Enter</kbd>{" "}
+                {t.enter_hint(filtered[0].code.toUpperCase())}
+              </div>
+            )}
+
+            <ul className="max-h-[min(50dvh,24rem)] overflow-y-auto px-3">
+              {isLoading && (
+                <li className="py-6 text-center text-sm text-muted">
+                  {t.loading_courses}
+                </li>
+              )}
+
+              {!isLoading && filtered.length === 0 && (
+                <li className="py-6 text-center text-sm text-muted">
+                  {t.no_results}
+                </li>
+              )}
+
+              {!isLoading &&
+                filtered.map((course) => {
+                  const isSelected = selectedIds.has(course.id);
+                  return (
+                    <li
+                      key={course.id}
+                      className="border-b border-border last:border-b-0"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggle(course)}
+                        aria-pressed={isSelected}
+                        className="flex min-h-[58px] w-full items-center gap-3 py-2 text-left"
+                      >
+                        <PencilBubble checked={isSelected} seed={course.id} />
+                        <span className="min-w-0">
+                          <span className="block text-[15px] font-semibold leading-tight">
+                            {course.name}
+                          </span>
+                          <span
+                            className={`mt-0.5 block font-mono text-xs ${isSelected ? "text-brand" : "text-muted"}`}
+                          >
+                            {[course.code, sessionLabel(course, t.section)]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

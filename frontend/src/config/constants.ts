@@ -21,3 +21,5 @@ export const EXAM_TYPE_EN = "Midterm";
 /** University name */
 export const UNIVERSITY_NAME_TR = "Haliç Üniversitesi";
 export const UNIVERSITY_NAME_EN = "Haliç University";
+
+export const SITE_URL = "https://www.halicexamgenius.app";

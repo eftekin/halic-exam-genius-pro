@@ -1,33 +1,34 @@
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { SITE_URL } from "@/config/constants";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600"],
 });
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
-    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
-  ],
+  themeColor: "#ffffff",
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Haliç Exam Genius | Haliç Üniversitesi Sınav Programı Oluşturucu",
   description:
-    "A specialized tool for 3000+ students to generate, export, and manage their final exam schedules instantly.",
+    "Haliç Üniversitesi öğrencileri için sınav programı: derslerini seç, tarih, saat ve derslikleri gör, takvimine ekle.",
   keywords: [
     "halic exam genius",
     "haliç üniversitesi sınav programı",
@@ -44,8 +45,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Haliç Exam Genius | Haliç Üniversitesi Sınav Programı Oluşturucu",
     description:
-      "A specialized tool for 3000+ students to generate, export, and manage their final exam schedules instantly.",
-    url: "https://halicexamgenius.com/",
+      "Haliç Üniversitesi öğrencileri için sınav programı: derslerini seç, tarih, saat ve derslikleri gör, takvimine ekle.",
+    url: SITE_URL,
     siteName: "Haliç Exam Genius",
     images: [
       {
@@ -62,7 +63,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Haliç Exam Genius | Haliç Üniversitesi Sınav Programı Oluşturucu",
     description:
-      "A specialized tool for 3000+ students to generate, export, and manage their final exam schedules instantly.",
+      "Haliç Üniversitesi öğrencileri için sınav programı: derslerini seç, tarih, saat ve derslikleri gör, takvimine ekle.",
     images: ["/og-image.png"],
   },
 };
@@ -73,10 +74,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="tr">
+      <body className={`${plexSans.variable} ${plexMono.variable} antialiased`}>
         {children}
         <Analytics />
         <SpeedInsights />

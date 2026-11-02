@@ -4,7 +4,18 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { Exam } from "./api.ts";
 import { generateMultiICS } from "./calendar.ts";
-import { compareExams, formatDate, sessionLabel, weekday } from "./exam.ts";
+import {
+  compareExams,
+  dayLabel,
+  examDays,
+  formatDate,
+  groupByDay,
+  matchesCourse,
+  periodLabel,
+  sessionLabel,
+  weekday,
+  weekdayShort,
+} from "./exam.ts";
 import type { Translations } from "./i18n.ts";
 
 const exam = (over: Partial<Exam> = {}): Exam => ({
@@ -23,6 +34,76 @@ test("date and weekday come from the calendar date, not the device time zone", (
   assert.equal(formatDate("2025-11-14"), "14/11/2025");
   assert.equal(weekday("2025-11-14", "tr"), "Cuma");
   assert.equal(weekday("2025-11-14", "en"), "Friday");
+});
+
+test("day labels stay on the calendar date in both languages", () => {
+  assert.equal(dayLabel("2026-11-07", "tr"), "Cumartesi, 7 Kasım");
+  assert.equal(dayLabel("2026-11-07", "en"), "Saturday, 7 November");
+  assert.equal(weekdayShort("2026-11-07", "tr"), "Cmt");
+  assert.equal(weekdayShort("2026-11-07", "en"), "Sat");
+});
+
+test("search ignores Turkish letters and case", () => {
+  const course = exam({
+    code: "HLÜ0101",
+    search_code: "hlu0101",
+    name: "Mesleki İngilizce I",
+  });
+  for (const q of [
+    "ingilizce",
+    "İNGİLİZCE",
+    "INGILIZCE",
+    "ingılızce",
+    "hlü",
+    "hlu",
+    "mesl ing",
+    "mii",
+  ]) {
+    assert.equal(matchesCourse(course, q), true, q);
+  }
+  assert.equal(matchesCourse(course, "matematik"), false);
+  assert.equal(
+    matchesCourse(
+      exam({ name: "İşletme Çevre Mühendisliği" }),
+      "isletme cevre",
+    ),
+    true,
+  );
+  assert.equal(
+    matchesCourse(exam({ name: "İşletme Çevre Mühendisliği" }), "muhendislik"),
+    false,
+  );
+});
+
+test("exam days are unique, sorted and label the period", () => {
+  const days = examDays([
+    exam({ date: "2026-11-15" }),
+    exam({ date: "2026-11-07" }),
+    exam({ date: "2026-11-15" }),
+  ]);
+  assert.deepEqual(days, ["2026-11-07", "2026-11-15"]);
+  assert.equal(periodLabel(days, "tr"), "7-15 Kasım");
+  assert.equal(periodLabel(days, "en"), "7-15 November");
+  assert.equal(periodLabel(["2026-11-07"], "tr"), "7 Kasım");
+  assert.equal(
+    periodLabel(["2026-11-28", "2026-12-03"], "tr"),
+    "28 Kasım-3 Aralık",
+  );
+});
+
+test("exams group by day and keep their order", () => {
+  const groups = groupByDay([
+    exam({ code: "A", date: "2026-11-07" }),
+    exam({ code: "B", date: "2026-11-07" }),
+    exam({ code: "C", date: "2026-11-09" }),
+  ]);
+  assert.deepEqual(
+    groups.map((g) => [g.date, g.exams.map((e) => e.code)]),
+    [
+      ["2026-11-07", ["A", "B"]],
+      ["2026-11-09", ["C"]],
+    ],
+  );
 });
 
 test("ics keeps the Excel time as Istanbul wall clock", () => {

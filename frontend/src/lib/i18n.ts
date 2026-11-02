@@ -14,6 +14,7 @@ import {
   EXAM_TYPE_TR,
   SEMESTER_EN,
   SEMESTER_TR,
+  SITE_URL,
   UNIVERSITY_NAME_EN,
   UNIVERSITY_NAME_TR,
 } from "@/config/constants";
@@ -30,8 +31,12 @@ const translations = {
     subtitle: `${UNIVERSITY_NAME_TR} Sınav Programı`,
 
     // CourseSelector
-    search_placeholder: "Ders ara ve seç...",
-    search_placeholder_open: "Ders kodu veya adı ile ara...",
+    courses_label: "Dersler",
+    search_placeholder: "Ders ara ve seç",
+    search_placeholder_open: "Ders kodu veya adı ile ara",
+    remove_course: (course: string) => `${course} kaldır`,
+    toggle_list: "Ders listesini aç veya kapat",
+    clear_search: "Aramayı temizle",
     courses_selected: (n: number) => `${n} ders seçildi`,
     clear_all: "Tümünü Kaldır",
     enter_hint: (code: string) => `ile "${code}" seç/kaldır`,
@@ -40,23 +45,27 @@ const translations = {
 
     // Schedule
     exams_listed: (n: number) => `${n} sınav listelendi`,
-    exam_type: EXAM_TYPE_TR,
     section: "Şube",
+    room: (_n: number) => "Derslik",
 
     // ExportBar
     add_all_to_calendar: (n: number) => `Tümünü Takvime Ekle (${n})`,
     generating: "Oluşturuluyor...",
     calendar_error: "Takvim dosyası oluşturulamadı.",
+    share: "Paylaş",
+    download: "Görseli İndir",
+    ics_filename: "sinav_programi.ics",
+    image_filename: "sinav_programi.png",
     share_title: "Sınav Programım",
-    share_text:
-      "İşte sınav programım! Haliç Exam Genius ile oluşturuldu: https://halicexamgenius.app/",
+    share_text: `Sınav programım, Haliç Exam Genius ile hazırlandı: ${SITE_URL}`,
     share_error: "Görsel oluşturulamadı.",
-    share_tooltip: "Paylaş / PNG İndir",
+    share_tooltip: "Görsel olarak paylaş veya indir",
+    unofficial: "Üniversitenin resmi sitesi değildir",
 
     // States
-    empty_title: "Sınav Programını Görüntüle",
-    empty_desc:
-      "Yukarıdaki arama kutusundan derslerini seç ve sınav programını anında oluştur.",
+    exam_period: `${EXAM_TYPE_TR} dönemi`,
+    period_summary: (sessions: number, days: number) =>
+      `${sessions.toLocaleString("tr-TR")} sınav oturumu · ${days} gün`,
     error_title: "Bir Sorun Oluştu",
     retry: "Tekrar Dene",
     courses_load_error: "Dersler yüklenemedi",
@@ -69,35 +78,45 @@ const translations = {
     // Footer
     footer: "Haliç Exam Genius",
     update_on_github: "Program güncel değil mi? GitHub'da güncelle",
+    star_on_github: "GitHub'da yıldızla",
   },
 
   en: {
     subtitle: `${UNIVERSITY_NAME_EN} Exam Schedule`,
 
-    search_placeholder: "Search and select courses...",
-    search_placeholder_open: "Search by course code or name...",
-    courses_selected: (n: number) => `${n} courses selected`,
+    courses_label: "Courses",
+    search_placeholder: "Search and select courses",
+    search_placeholder_open: "Search by course code or name",
+    remove_course: (course: string) => `Remove ${course}`,
+    toggle_list: "Open or close the course list",
+    clear_search: "Clear search",
+    courses_selected: (n: number) =>
+      `${n} ${n === 1 ? "course" : "courses"} selected`,
     clear_all: "Clear All",
     enter_hint: (code: string) => `to select/remove "${code}"`,
     loading_courses: "Loading courses...",
     no_results: "No results found",
 
-    exams_listed: (n: number) => `${n} exams listed`,
-    exam_type: EXAM_TYPE_EN,
+    exams_listed: (n: number) => `${n} ${n === 1 ? "exam" : "exams"} listed`,
     section: "Section",
+    room: (n: number) => (n > 1 ? "Rooms" : "Room"),
 
     add_all_to_calendar: (n: number) => `Add All to Calendar (${n})`,
     generating: "Generating...",
     calendar_error: "Could not generate calendar file.",
+    share: "Share",
+    download: "Download Image",
+    ics_filename: "exam_schedule.ics",
+    image_filename: "exam_schedule.png",
     share_title: "My Exam Schedule",
-    share_text:
-      "Here's my exam schedule! Created with Haliç Exam Genius: https://halicexamgenius.app/",
+    share_text: `My exam schedule, made with Haliç Exam Genius: ${SITE_URL}`,
     share_error: "Could not generate image.",
-    share_tooltip: "Share / Download PNG",
+    share_tooltip: "Share or download as an image",
+    unofficial: "Not an official university site",
 
-    empty_title: "View Exam Schedule",
-    empty_desc:
-      "Select your courses from the search bar above to instantly generate your exam schedule.",
+    exam_period: `${EXAM_TYPE_EN} period`,
+    period_summary: (sessions: number, days: number) =>
+      `${sessions.toLocaleString("en-US")} exam ${sessions === 1 ? "session" : "sessions"} · ${days} ${days === 1 ? "day" : "days"}`,
     error_title: "Something Went Wrong",
     retry: "Retry",
     courses_load_error: "Could not load courses",
@@ -108,6 +127,7 @@ const translations = {
 
     footer: "Haliç Exam Genius",
     update_on_github: "Schedule out of date? Update it on GitHub",
+    star_on_github: "Star on GitHub",
   },
 } as const;
 
@@ -138,7 +158,9 @@ export function useLanguage() {
   const [lang, setLangState] = useState<Lang>("tr");
 
   useEffect(() => {
-    setLangState(detectLang());
+    const detected = detectLang();
+    setLangState(detected);
+    document.documentElement.lang = detected;
   }, []);
 
   const setLang = useCallback((l: Lang) => setLangState(l), []);
