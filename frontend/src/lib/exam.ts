@@ -55,7 +55,9 @@ export function periodLabel(days: string[], lang: Lang): string {
 export function groupByDay(sorted: Exam[]): { date: string; exams: Exam[] }[] {
   const days = new Map<string, Exam[]>();
   for (const exam of sorted) {
-    days.set(exam.date, [...(days.get(exam.date) ?? []), exam]);
+    const day = days.get(exam.date);
+    if (day) day.push(exam);
+    else days.set(exam.date, [exam]);
   }
   return [...days].map(([date, exams]) => ({ date, exams }));
 }

@@ -1,10 +1,12 @@
 <div align="center">
 
-# Haliç Exam Genius Pro
+<img src="frontend/public/favicon.svg" alt="" width="72" height="72">
+
+# Haliç Exam Genius
 
 **Exam schedule app for Haliç University students.**
 
-Pick your courses, see every exam's date, time and room, and export the schedule to your calendar or as an image. Turkish and English.
+Pick your courses, see every exam's date, time and room, and export the schedule to your calendar or as an image. Turkish and English. Not an official university site.
 
 [halicexamgenius.app](https://www.halicexamgenius.app)
 
@@ -29,7 +31,18 @@ Pick your courses, see every exam's date, time and room, and export the schedule
 | **Calendar export** | One `.ics` file with every selected exam (iOS, Android, Google, Outlook). |
 | **Image export** | Schedule as a PNG, shared through the Web Share API where available. |
 | **Bilingual** | Turkish and English, picked from the browser language. |
+| **Exam days** | A strip of the exam period, read from the data, with your exam days filled in. |
 | **Dark mode** | Follows the system setting. |
+
+---
+
+## Design
+
+The site looks like a printed optical answer sheet. The logo spells an H with filled bubbles, and selected courses look shaded in with a pencil.
+
+- **Color:** Haliç blue `#001BC3`, taken from the university's logo.
+- **Type:** IBM Plex Sans and IBM Plex Mono.
+- **Tokens:** Light and dark colors live in `frontend/src/app/globals.css`.
 
 ---
 

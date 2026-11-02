@@ -33,7 +33,7 @@ const ExamCard = memo(function ExamCard({ exam, t }: ExamCardProps) {
           {rooms && (
             <span className="md:hidden">
               {" · "}
-              {t.room} {rooms}
+              {t.room(exam.rooms.length)} {rooms}
             </span>
           )}
         </p>

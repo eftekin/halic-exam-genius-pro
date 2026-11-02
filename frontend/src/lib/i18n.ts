@@ -45,7 +45,7 @@ const translations = {
     // Schedule
     exams_listed: (n: number) => `${n} sınav listelendi`,
     section: "Şube",
-    room: "Derslik",
+    room: (_n: number) => "Derslik",
 
     // ExportBar
     add_all_to_calendar: (n: number) => `Tümünü Takvime Ekle (${n})`,
@@ -92,7 +92,7 @@ const translations = {
 
     exams_listed: (n: number) => `${n} exams listed`,
     section: "Section",
-    room: "Room",
+    room: (n: number) => (n > 1 ? "Rooms" : "Room"),
 
     add_all_to_calendar: (n: number) => `Add All to Calendar (${n})`,
     generating: "Generating...",
@@ -105,7 +105,7 @@ const translations = {
 
     exam_period: `${EXAM_TYPE_EN} period`,
     period_summary: (sessions: number, days: number) =>
-      `${sessions.toLocaleString("en-US")} exam sessions · ${days} days`,
+      `${sessions.toLocaleString("en-US")} exam ${sessions === 1 ? "session" : "sessions"} · ${days} ${days === 1 ? "day" : "days"}`,
     error_title: "Something Went Wrong",
     retry: "Retry",
     courses_load_error: "Could not load courses",

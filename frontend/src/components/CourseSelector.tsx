@@ -112,7 +112,7 @@ export default function CourseSelector({
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       e.preventDefault();
-      if (filtered.length > 0) {
+      if (query.trim() && filtered.length > 0) {
         toggle(filtered[0]);
       }
     } else if (e.key === "Backspace" && query === "" && selected.length > 0) {

@@ -47,10 +47,8 @@ export default function Home() {
     setError(null);
     try {
       setExams(await fetchExams());
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : tRef.current.courses_load_error,
-      );
+    } catch {
+      setError(tRef.current.courses_load_error);
     } finally {
       setLoading(false);
     }
@@ -72,7 +70,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-2xl flex-col bg-background">
-      <header className="sticky top-0 z-40 border-b-2 border-brand bg-background">
+      <header className="relative top-0 z-40 border-b-2 border-brand bg-background [@media(min-height:500px)]:sticky">
         <div className="flex flex-col gap-3 px-4 pb-3.5 pt-safe">
           <div className="flex items-center gap-2.5">
             <Image
